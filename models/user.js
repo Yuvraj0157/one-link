@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -25,13 +24,8 @@ const userSchema = new mongoose.Schema({
       enum:['verification','active'],
       default:'verification'
     }
-},{strict:false});
-
-userSchema.pre("save", async function () {
-  const salt = await bcrypt.genSalt();
-  this.password = await bcrypt.hash(this.password, salt);
 });
 
-const User = mongoose.model("account",userSchema);
+const User = mongoose.model("user",userSchema);
 
 module.exports = User;
