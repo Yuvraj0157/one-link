@@ -74,7 +74,20 @@ router.post('/register',
                 createdDate:new Date().toLocaleString("en-US",{timeZone: 'Asia/Kolkata'}),
             }); 
             const profile = await Profile.create({userid:user._id});
-            res.redirect('/login');
+            if(user){
+                jwt.sign({ userID: user._id }, process.env.JWT_VERIFICATION_SECRET, { expiresIn: process.env.JWT_VERIFICATION_EXPIRY || '15m'}, (err, token) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    const link = `${req.headers['x-forwarded-proto']||'http'}://${req.headers.host}/verify-email/${token}`;
+                    emailController.sendVerificationEmail(link, email);
+                    res.redirect('/login');
+                });
+
+            }else{
+                req.flash('error', 'Error creating user');
+                res.redirect('/register');
+            }
         }catch(error){
             console.log(error);
             res.status(500).render('500');
@@ -246,5 +259,28 @@ router.post('/reset-password',
         }
     }
 );
+
+router.get('/verify-email/:token', async (req, res) => {
+    const token = req.params.token;
+    try {
+        jwt.verify(token, process.env.JWT_VERIFICATION_SECRET, async (err, decoded) => {
+            if (err) {
+                console.log(err);
+                res.status(404).render('404');
+            }
+            const user = await User.findOne({ _id: decoded.userID});
+            if (user) {
+                user.status = 'active';
+                await user.save();
+                res.redirect('/dashboard');
+            } else {
+                res.status(404).render('404');
+            }
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).render('500');
+    }
+});
 
 module.exports = router;

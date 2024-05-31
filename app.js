@@ -8,12 +8,14 @@ const flash = require('express-flash');
 const _ = require('lodash');
 const mongoose = require("mongoose");
 require("dotenv").config();
+const path = require('path');
 
-const { isAuth } = require('./middlewares/auth');
+const { isAuth, isVerified } = require('./middlewares/auth');
 
 // Importing Routes
 const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/user");
+const appearanceRoutes = require("./routes/appearance");
+const profileRoutes = require("./routes/profile");
 const dashboardRoutes = require("./routes/dashboard");
 
 const app = express();
@@ -31,6 +33,7 @@ app.use(session({
 app.use(flash());
 app.use(cookieParser());
 app.set("view engine", "ejs");
+app.set('views', path.join(__dirname, 'views'));
 
 // Connecting to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -44,8 +47,9 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes
 app.use(authRoutes);
-app.use('/dashboard',isAuth,dashboardRoutes);
-// app.use(userRoutes);
+app.use('/dashboard',isAuth,isVerified,dashboardRoutes);
+app.use('/appearance',isAuth,isVerified,appearanceRoutes);
+app.use('/profile',profileRoutes);
 
 app.get("/", (req, res) => {
   res.redirect('/login');
