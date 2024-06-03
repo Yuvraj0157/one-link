@@ -24,6 +24,7 @@ app.use(morgan("dev"));
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(bodyParser.json());
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -31,7 +32,6 @@ app.use(session({
     // cookie: { maxAge: 60000 }
 }));
 app.use(flash());
-app.use(cookieParser());
 app.set("view engine", "ejs");
 app.set('views', path.join(__dirname, 'views'));
 
@@ -51,8 +51,9 @@ app.use('/dashboard',isAuth,isVerified,dashboardRoutes);
 app.use('/appearance',isAuth,isVerified,appearanceRoutes);
 app.use('/profile',profileRoutes);
 
-app.get("/", (req, res) => {
-  res.redirect('/login');
+app.get("/", isAuth, (req, res) => {
+  // console.log(req.isLoggedIn);
+  res.render("index", { isLoggedIn: req.isLoggedIn });
 });
 
 app.use("*",(req,res)=>{

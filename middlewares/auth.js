@@ -8,14 +8,15 @@ const isAuth = (req, res, next) => {
         jwt.verify(token, process.env.JWT_LOGIN_SECRET, (err, decodedToken) => {
             if (err) {
                 console.log(err.message);
-                res.redirect('/login'); 
+                res.status(403).render('index', { isLoggedIn: false });
             } else {
                 req.userID = decodedToken.userID;
+                req.isLoggedIn = true;
                 next(); 
             }
         });
     } else {
-        res.redirect('/login'); 
+        res.status(200).render('index', { isLoggedIn: false }); 
     }
 };
 
