@@ -36,7 +36,7 @@ const profileSchema = new mongoose.Schema({
         whatsapp: { type: String },
         telegram: { type: String },
         signal: { type: String },
-        twitch: { type: String },
+        discord: { type: String },
         pinterest: { type: String },
         tiktok: { type: String },
         spotify: { type: String },
