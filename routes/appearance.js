@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const multer  = require('multer')
-const { S3Client } = require('@aws-sdk/client-s3');
+const { S3Client,DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const multerS3 = require('multer-s3');
 
 const Profile = require('../models/profile');
@@ -88,6 +88,31 @@ router.post('/', (req, res) => {
         });
     });
   });
+
+router.post("/delete", async (req, res) => {
+  const s3PhotoKey = req.body.uri.split("/")[3];
+  // console.log(s3PhotoKey);
+  const params = {
+    Bucket: process.env.S3_BUCKET_NAME,
+    Key: s3PhotoKey,
+  };
+
+  const command = new DeleteObjectCommand(params);
+  try {
+    await s3.send(command);
+    Profile.findOneAndUpdate({ userid: req.userID }, { photo: null })
+      .then(() => {
+        res.json({ status: "success" , message: "Photo deleted successfully"});
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({ status: "error", message: "An error occurred" });
+      });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: "error", message: "An error occurred" });
+  }
+});
     
 
 module.exports = router;
