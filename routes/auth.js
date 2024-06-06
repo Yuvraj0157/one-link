@@ -203,6 +203,9 @@ router.post('/forgot-password',
 );
 
 router.get('/reset-password/:token', async (req, res) => {
+    if (!req.params.token) {
+        res.status(404).render('404');
+    }
     const token = req.params.token;
     res.render('reset-password', { title: 'Reset Password', error: null, token: token });
 });
@@ -242,15 +245,20 @@ router.post('/reset-password',
                     res.redirect('/forgot-password');
                 }
                 // console.log(decoded);
-                const user = await User.findOne({ _id: decoded.userID});
-                if (user) {
-                    const hash = await bcrypt.hash(password, 10);
-                    user.password = hash;
-                    await user.save();
-                    res.redirect('/login');
-                } else {
-                    req.flash('error', 'Invalid email');
-                    res.redirect('/forgot-password');
+                if (decoded) {
+                    const user = await User.findOne({ _id: decoded.userID});
+                    if (user) {
+                        const hash = await bcrypt.hash(password, 10);
+                        user.password = hash;
+                        await user.save();
+                        res.redirect('/login');
+                    } else {
+                        req.flash('error', 'Invalid email');
+                        res.redirect('/forgot-password');
+                    }
+                }
+                else {
+                    res.status(404).render('404');
                 }
             });
         } catch (error) {
@@ -261,6 +269,9 @@ router.post('/reset-password',
 );
 
 router.get('/verify-email/:token', async (req, res) => {
+    if (!req.params.token) {
+        res.status(404).render('404');
+    }
     const token = req.params.token;
     try {
         jwt.verify(token, process.env.JWT_VERIFICATION_SECRET, async (err, decoded) => {
@@ -268,12 +279,17 @@ router.get('/verify-email/:token', async (req, res) => {
                 console.log(err);
                 res.status(404).render('404');
             }
-            const user = await User.findOne({ _id: decoded.userID});
-            if (user) {
-                user.status = 'active';
-                await user.save();
-                res.redirect('/dashboard');
-            } else {
+            if (decoded) {
+                const user = await User.findOne({ _id: decoded.userID });
+                if (user) {
+                    user.isVerified = true;
+                    await user.save();
+                    res.redirect('/login');
+                } else {
+                    res.status(404).render('404');
+                }
+            }
+            else {
                 res.status(404).render('404');
             }
         });
