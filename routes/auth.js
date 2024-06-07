@@ -25,7 +25,7 @@ router.get('/register', (req, res) => {
     } else {
         message = null;
     }
-    res.render('register', { title: 'Register', error: message});
+    res.render('auth/register', { title: 'Register', error: message});
 });
 
 router.post('/register', 
@@ -53,7 +53,7 @@ router.post('/register',
         const errors = validationResult(req);
         if (!errors.isEmpty()) { 
             // console.log(errors.array());  
-            return res.status(422).render('register', { title: 'Register', error: errors.array()[0].msg});
+            return res.status(422).render('auth/register', { title: 'Register', error: errors.array()[0].msg});
         }
         try {
             let user = await User.find({username:username});
@@ -102,7 +102,7 @@ router.get('/login', (req, res) => {
     } else {
         message = null;
     }
-    res.render('login', { title: 'Login', error: message});
+    res.render('auth/login', { title: 'Login', error: message});
 });
 
 router.post('/login', 
@@ -119,7 +119,7 @@ router.post('/login',
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).render('login', { title: 'Login', error: errors.array()[0].msg});
+            return res.status(422).render('auth/login', { title: 'Login', error: errors.array()[0].msg});
         }
         try {
             const user = await User.findOne({ email: email });
@@ -163,7 +163,7 @@ router.get('/forgot-password', (req, res) => {
     } else {
         message = null;
     }
-    res.render('forgot-password', { title: 'Forgot Password' , error: message});
+    res.render('auth/forgot-password', { title: 'Forgot Password' , error: message});
 });
 
 router.post('/forgot-password',
@@ -178,7 +178,7 @@ router.post('/forgot-password',
         try{
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                return res.status(422).render('forgot-password', { title: 'Forgot Password', error: errors.array()[0].msg});
+                return res.status(422).render('auth/forgot-password', { title: 'Forgot Password', error: errors.array()[0].msg});
             }
             const user = await User.findOne({ email: email })
             if (user) {
@@ -207,7 +207,7 @@ router.get('/reset-password/:token', async (req, res) => {
         res.status(404).render('404');
     }
     const token = req.params.token;
-    res.render('reset-password', { title: 'Reset Password', error: null, token: token });
+    res.render('auth/reset-password', { title: 'Reset Password', error: null, token: token });
 });
 
 router.post('/reset-password',
@@ -235,7 +235,7 @@ router.post('/reset-password',
             // if(errors.array().length > 0) {
             //     message = errors.array()[0].msg;
             // }
-            return res.status(422).render('reset-password', { title: 'Reset Password', error: errors.array()[0].msg , token: token });
+            return res.status(422).render('auth/reset-password', { title: 'Reset Password', error: errors.array()[0].msg , token: token });
         }
 
         try {
