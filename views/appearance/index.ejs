@@ -2,196 +2,222 @@
  <%-include('../dashboard/include/_header')%>
 <!-- /Header -->
 
-<body>
-
-     <!-- Main Site -->
- <main id="site-main">
+<!-- Main Site -->
+<main id="site-main">
     <div class="container">
-       <div class="box-nav d-flex justify-between">
-           <div class="filter">
-               <a href="/dashboard"><i class="fas fa-angle-double-left"></i> Dashboard</a>
-           </div>
-       </div>
+        <div class="box-nav d-flex justify-between">
+            <div class="filter">
+                <a href="/dashboard"><i class="fas fa-angle-double-left"></i> Dashboard</a>
+            </div>
+        </div>
         <div class="form-title text-center">
             <h2 class="text-dark" style="text-align: center;">Appearance</h2>
         </div>
 
-      <!-- add user form -->
-       <!-- form handling -->
- <form action="/appearance" class="update_user" method="POST" id="appearance_form" enctype="multipart/form-data">
-    <div class="new_user">
-        
-        <div class="avatar-wrapper">
-            <% if(data.photo){ %>
-                <img id="profilePhoto" class="profile-pic" src="<%= data.photo %>" data-photo="<%= data.photo %>" style="object-fit: cover;" />
-            <% } else { %>
-                <img id="profilePhoto" class="profile-pic" src="" style="object-fit: cover;" />
-            <% } %>
-            <div class="upload-button">
-                <% if(data.photo) {%>
-                    <i id="uploadIcon" class="fa-solid fa-upload" aria-hidden="true" style="color:#1b19bb;"></i>
-                    <i id="deleteIcon" class="fa-solid fa-trash" aria-hidden="true" style="color: rgb(242, 9, 9);"></i>
-                <% } else {%>
-                    <i id="uploadIcon" class="fa-solid fa-upload" aria-hidden="true" style="color:#1b19bb; font-size: 50px; bottom: 30px; right:27px"></i>
+        <form action="/appearance" class="update_user" method="POST" id="appearance_form" enctype="multipart/form-data">
+            <div class="new_user">
+                <div class="avatar-wrapper">
+                    <% if(data.photo){ %>
+                        <img id="profilePhoto" class="profile-pic" src="<%= data.photo %>" data-photo="<%= data.photo %>"
+                            style="object-fit: cover;" />
+                    <% } else { %>
+                        <img id="profilePhoto" class="profile-pic" src="" style="object-fit: cover;" />
+                    <% } %>
+                    <div class="upload-button">
+                        <% if(data.photo) {%>
+                            <i id="uploadIcon" class="fa-solid fa-upload" aria-hidden="true" style="color:#1b19bb;"></i>
+                            <i id="deleteIcon" class="fa-solid fa-trash" aria-hidden="true"
+                                style="color: rgb(242, 9, 9);"></i>
+                            <% } else {%>
+                                <i id="uploadIcon" class="fa-solid fa-upload" aria-hidden="true"
+                                    style="color:#1b19bb; font-size: 50px; bottom: 30px; right:27px"></i>
+                            <% } %>
+                    </div>
+                    <input id="profilepic" class="file-upload" name="file" type="file" accept="image/*" />
+                </div>
+
+                <% if (messages.error) { %>
+                    <div style="color: tomato; text-align: center; ">
+                        <br>
+                        <%= messages.error %>
+                    </div>
                 <% } %>
-            </div>
-            <input id="profilepic" class="file-upload" name="file" type="file" accept="image/*"/>
-        </div>
-        
-        <% if (messages.error) { %>
-            <div style="color: tomato; text-align: center; ">
-                <br>
-              <%= messages.error %>
-            </div>
-          <% } %>
+                <div class="form-group">
+                    <label for="profileTitle" class="text-light">Profile Title</label>
+                    <% if(data.title){ %>
+                        <input id="profileTitle" type="text" name="title" value="<%= data.title %>"
+                            placeholder="Social/Business/Creator/..">
+                    <% } else { %>
+                        <input id="profileTitle" type="text" name="title" value=""
+                            placeholder="Social/Business/Creator/..">
+                    <% } %>
+                </div>
+                <div class="form-group">
+                    <label for="bio" class="text-light">Bio</label><br>
+                    <% if(data.bio){ %>
+                        <textarea id="profileBio" name="bio"
+                            placeholder="Enter a bio description to appear on your profile"><%= data.bio %></textarea>
+                    <% } else { %>
+                        <textarea id="profileBio" name="bio"
+                            placeholder="Enter a bio description to appear on your profile"></textarea>
+                    <% } %>
+                </div>
 
-        <div class="form-group">
-            <label for="profileTitle" class="text-light">Profile Title</label>
-            <% if(data.title){ %>
-                <input id="profileTitle" type="text" name="title" value="<%= data.title %>" placeholder="Social/Business/Creator/..">
-            <% } else { %>
-            <input id="profileTitle" type="text" name="title" value="" placeholder="Social/Business/Creator/..">
-            <% } %>
-        </div>
-        <div class="form-group">
-           <label for="bio" class="text-light">Bio</label><br>
-              <% if(data.bio){ %>
-                 <textarea id="profileBio"  name="bio" placeholder="Enter a bio description to appear on your profile"  ><%= data.bio %></textarea>
-                <% } else { %>
-           <textarea id="profileBio"  name="bio" placeholder="Enter a bio description to appear on your profile"  ></textarea>
-              <% } %>
-       </div>
-       
-       <div class="form-group">
-        <label for="theme" class="text-light">Theme</label>
-        <select name="theme" id="profileTheme">
-          <option value="default" <%= data.theme === 'default' ? 'selected' : '' %>>Default</option>
-          <option value="dark" <%= data.theme === 'dark' ? 'selected' : '' %>>Dark</option>
-          <option value="wave" <%= data.theme === 'wave' ? 'selected' : '' %>>Wave</option>
-          <option value="purple" <%= data.theme === 'purple' ? 'selected' : '' %>>Purple</option>
-          <option value="hexagonal" <%= data.theme === 'hexagonal' ? 'selected' : '' %>>Hexagonal</option>
-          <option value="bluedot" <%= data.theme === 'bluedot' ? 'selected' : '' %>>BlueDot</option>
-          <option value="purpledot" <%= data.theme === 'purpledot' ? 'selected' : '' %>>PurpleDot</option>
-          <option value="shapes" <%= data.theme === 'shapes' ? 'selected' : '' %>>Shapes</option>
-          <option value="snow" <%= data.theme === 'snow' ? 'selected' : '' %>>Snow</option>
-          <option value="moon" <%= data.theme === 'moon' ? 'selected' : '' %>>Moon</option>
-          <option value="soundwave" <%= data.theme === 'soundwave' ? 'selected' : '' %>>SoundWave</option>
-          <option value="abstractpaper" <%= data.theme === 'abstractpaper' ? 'selected' : '' %>>AbstractPaper</option>
-          <option value="stockmarket" <%= data.theme === 'stockmarket' ? 'selected' : '' %>>StockMarket</option>
-          <option value="worldmapindia" <%= data.theme === 'worldmapindia' ? 'selected' : '' %>>WorldMap-India</option>
-          <option value="sprinkle" <%= data.theme === 'sprinkle' ? 'selected' : '' %>>Sprinkle</option>
-          <option value="meteor" <%= data.theme === 'meteor' ? 'selected' : '' %>>Meteor</option>
-          <option value="masscircles" <%= data.theme === 'masscircles' ? 'selected' : '' %>>MassCircles</option>
-          <option value="animatedshape" <%= data.theme === 'animatedshape' ? 'selected' : '' %>>AnimatedShape</option>
-        </select>
-        <a class="modal-open btn">Change theme</a>
-       </div>
+                <div class="form-group">
+                    <label for="theme" class="text-light">Theme</label>
+                    <select name="theme" id="profileTheme">
+                        <option value="default" <%=data.theme==='default' ? 'selected' : '' %>>Default</option>
+                        <option value="dark" <%=data.theme==='dark' ? 'selected' : '' %>>Dark</option>
+                        <option value="wave" <%=data.theme==='wave' ? 'selected' : '' %>>Wave</option>
+                        <option value="purple" <%=data.theme==='purple' ? 'selected' : '' %>>Purple</option>
+                        <option value="hexagonal" <%=data.theme==='hexagonal' ? 'selected' : '' %>>Hexagonal
+                        </option>
+                        <option value="bluedot" <%=data.theme==='bluedot' ? 'selected' : '' %>>BlueDot</option>
+                        <option value="purpledot" <%=data.theme==='purpledot' ? 'selected' : '' %>>PurpleDot
+                        </option>
+                        <option value="shapes" <%=data.theme==='shapes' ? 'selected' : '' %>>Shapes</option>
+                        <option value="snow" <%=data.theme==='snow' ? 'selected' : '' %>>Snow</option>
+                        <option value="moon" <%=data.theme==='moon' ? 'selected' : '' %>>Moon</option>
+                        <option value="soundwave" <%=data.theme==='soundwave' ? 'selected' : '' %>>SoundWave
+                        </option>
+                        <option value="abstractpaper" <%=data.theme==='abstractpaper' ? 'selected' : '' %>
+                            >AbstractPaper</option>
+                        <option value="stockmarket" <%=data.theme==='stockmarket' ? 'selected' : '' %>
+                            >StockMarket</option>
+                        <option value="worldmapindia" <%=data.theme==='worldmapindia' ? 'selected' : '' %>
+                            >WorldMap-India</option>
+                        <option value="sprinkle" <%=data.theme==='sprinkle' ? 'selected' : '' %>>Sprinkle
+                        </option>
+                        <option value="meteor" <%=data.theme==='meteor' ? 'selected' : '' %>>Meteor</option>
+                        <option value="masscircles" <%=data.theme==='masscircles' ? 'selected' : '' %>
+                            >MassCircles</option>
+                        <option value="animatedshape" <%=data.theme==='animatedshape' ? 'selected' : '' %>
+                            >AnimatedShape</option>
+                    </select>
+                    <a class="modal-open btn">Change theme</a>
+                </div>
 
-       <!-- Theme Select Dialog Box -->
-       <div class="modal hidden">
-        <div class="modal-rect">
-            <div class="modal-close">
-                <a>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" class="close-icon">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </a>
+                <!-- Theme Select Dialog Box -->
+                <div class="modal hidden">
+                    <div class="modal-rect">
+                        <div class="modal-close">
+                            <a>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="#000000" class="close-icon">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="modal-title">
+                            <h2>Choose Theme</h2>
+                        </div>
+                        <div class="theme-parent">
+                            <div class="theme-row">
+                                <div class="theme-card default">
+                                    <div class="theme-img" style="background-color: #008080;">IMG</div>
+                                    <p class="theme-name">Default</p>
+                                </div>
+                                <div class="theme-card dark">
+                                    <div class="theme-img" style="background-color: #000000; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Dark</p>
+                                </div>
+                                <div class="theme-card wave">
+                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Wave</p>
+                                </div>
+                                <div class="theme-card purple">
+                                    <div class="theme-img" style="background-color: #2511B6; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Purple</p>
+                                </div>
+                                <div class="theme-card hexagonal">
+                                    <div class="theme-img" style="background-color: #074D96; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Hexagonal</p>
+                                </div>
+                            </div>
+                            <div class="theme-row purp">
+                                <div class="theme-card bluedot">
+                                    <div class="theme-img" style="background-color: #9CA3E6;">IMG</div>
+                                    <p class="theme-name">BlueDot</p>
+                                </div>
+                                <div class="theme-card purpledot">
+                                    <div class="theme-img" style="background-color: #8782E4;">IMG</div>
+                                    <p class="theme-name">PurpleDot</p>
+                                </div>
+                                <div class="theme-card shapes">
+                                    <div class="theme-img" style="background-color: #3D3BC1; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Shapes</p>
+                                </div>
+                                <div class="theme-card snow">
+                                    <div class="theme-img" style="background-color: #24588E; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Snow</p>
+                                </div>
+                                <div class="theme-card moon">
+                                    <div class="theme-img" style="background-color: #32325D; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Moon</p>
+                                </div>
+                            </div>
+                            <div class="theme-row">
+                                <div class="theme-card soundwave">
+                                    <div class="theme-img" style="background-color: #043D83; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Soundwave</p>
+                                </div>
+                                <div class="theme-card abstractpaper">
+                                    <div class="theme-img" style="background-color: #2E409E; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Abstractpaper</p>
+                                </div>
+                                <div class="theme-card stockmarket">
+                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">StockMarket</p>
+                                </div>
+                                <div class="theme-card worldmapindia">
+                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">WorldMap-India</p>
+                                </div>
+                                <div class="theme-card sprinkle">
+                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
+                                    </div>
+                                    <p class="theme-name">Sprinkle</p>
+                                </div>
+                            </div>
+                            <div class="theme-row">
+                                <div class="theme-card masscircles">
+                                    <div class="theme-img" style="background-color: #0E2A47 ; color: #9BA3E6;">
+                                        IMG</div>
+                                    <p class="theme-name">MassCircles</p>
+                                </div>
+                                <div class="theme-card animatedshape">
+                                    <div class="theme-img" style="background-color: #0E2A47; color: #9AA2E5;">
+                                        IMG</div>
+                                    <p class="theme-name">AnimatedShape</p>
+                                </div>
+                            </div>
+                        </div>
+                        <a class="theme-submit">Done</a>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn text-dark update">Save</button>
+                </div>
             </div>
-            <div class="modal-title">
-                <h2>Choose Theme</h2>
-            </div>
-            <div class="theme-parent">
-                <div class="theme-row">
-                    <div class="theme-card default">
-                        <div class="theme-img" style="background-color: #008080;">IMG</div>
-                        <p class="theme-name">Default</p>
-                    </div>
-                    <div class="theme-card dark">
-                        <div class="theme-img" style="background-color: #000000; color: white;">IMG</div>
-                        <p class="theme-name">Dark</p>
-                    </div>
-                    <div class="theme-card wave">
-                        <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG</div>
-                        <p class="theme-name">Wave</p>
-                    </div>
-                    <div class="theme-card purple">
-                        <div class="theme-img" style="background-color: #2511B6; color: white;">IMG</div>
-                        <p class="theme-name">Purple</p>
-                    </div>
-                    <div class="theme-card hexagonal">
-                        <div class="theme-img" style="background-color: #074D96; color: white;">IMG</div>
-                        <p class="theme-name">Hexagonal</p>
-                    </div>
-                </div>
-                <div class="theme-row purp">
-                    <div class="theme-card bluedot">
-                        <div class="theme-img" style="background-color: #9CA3E6;">IMG</div>
-                        <p class="theme-name">BlueDot</p>
-                    </div>
-                    <div class="theme-card purpledot">
-                        <div class="theme-img" style="background-color: #8782E4;">IMG</div>
-                        <p class="theme-name">PurpleDot</p>
-                    </div>
-                    <div class="theme-card shapes">
-                        <div class="theme-img" style="background-color: #3D3BC1; color: white;">IMG</div>
-                        <p class="theme-name">Shapes</p>
-                    </div>
-                    <div class="theme-card snow">
-                        <div class="theme-img" style="background-color: #24588E; color: white;">IMG</div>
-                        <p class="theme-name">Snow</p>
-                    </div>
-                    <div class="theme-card moon">
-                        <div class="theme-img" style="background-color: #32325D; color: white;">IMG</div>
-                        <p class="theme-name">Moon</p>
-                    </div>
-                </div>
-                <div class="theme-row">
-                    <div class="theme-card soundwave">
-                        <div class="theme-img" style="background-color: #043D83; color: white;">IMG</div>
-                        <p class="theme-name">Soundwave</p>
-                    </div>
-                    <div class="theme-card abstractpaper">
-                        <div class="theme-img" style="background-color: #2E409E; color: white;">IMG</div>
-                        <p class="theme-name">Abstractpaper</p>
-                    </div>
-                    <div class="theme-card stockmarket">
-                        <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG</div>
-                        <p class="theme-name">StockMarket</p>
-                    </div>
-                    <div class="theme-card worldmapindia">
-                        <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG</div>
-                        <p class="theme-name">WorldMap-India</p>
-                    </div>
-                    <div class="theme-card sprinkle">
-                        <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG</div>
-                        <p class="theme-name">Sprinkle</p>
-                    </div>
-                </div>
-                <div class="theme-row">
-                    <div class="theme-card masscircles">
-                        <div class="theme-img" style="background-color: #0E2A47 ; color: #9BA3E6;">IMG</div>
-                        <p class="theme-name">MassCircles</p>
-                    </div>
-                    <div class="theme-card animatedshape">
-                        <div class="theme-img" style="background-color: #0E2A47; color: #9AA2E5;">IMG</div>
-                        <p class="theme-name">AnimatedShape</p>
-                    </div>
-                </div>
-            </div>
-            <a class="theme-submit">Done</a>
-        </div>
-       </div>
-      
-       <div class="form-group">
-           <button type="submit" class="btn text-dark update">Save</button>
-       </div>
-    </div>   
-   </form>
+        </form>
     </div>
 </main>
 <!-- /Main Site -->
-<script>
 
+<script>
     $(document).ready(function () {
         var readURL = function (input) {
             if (input.files && input.files[0]) {
@@ -200,21 +226,17 @@
                 reader.onload = function (e) {
                     $('#profilePhoto').attr('src', e.target.result);
                 }
-
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
         // Handle file upload
         $(".file-upload").on('change', function () {
             readURL(this);
         });
-
         // Open file selector when upload icon is clicked
         $("#uploadIcon").on('click', function () {
             $("#profilepic").click();
         });
-
         // Handle delete action
         $("#deleteIcon").on('click', function () {
             const uri = $('#profilePhoto').data('photo');
@@ -252,16 +274,13 @@
         document.querySelector('.modal').classList.toggle('hidden');
     }
     const setTheme = (themeName) => {
-        // const themeCard = document.getElementsByClassName('theme-cards')
         const selecttheme = document.querySelector('#profileTheme');
         selecttheme.value = themeName;
     }
-
     // Toggle Dialog Box
     document.querySelector('.modal-open').addEventListener('click', toggleModal);
     document.querySelector('.theme-submit').addEventListener('click', toggleModal);
     document.querySelector('.modal-close').addEventListener('click', toggleModal);
-
     // Theme setting
     document.querySelector('.default').addEventListener('click', function(){setTheme('default')})
     document.querySelector('.dark').addEventListener('click', function(){setTheme('dark')})
@@ -280,7 +299,6 @@
     document.querySelector('.sprinkle').addEventListener('click', function(){setTheme('sprinkle')})
     document.querySelector('.masscircles').addEventListener('click', function(){setTheme('masscircles')})
     document.querySelector('.animatedshape').addEventListener('click', function(){setTheme('animatedshape')})
-
 </script>
 
 <!-- include footer -->
