@@ -53,7 +53,7 @@ app.use('/profile',profileRoutes);
 
 app.get("/", isAuth, (req, res) => {
   // console.log(req.isLoggedIn);
-  res.render("index", { isLoggedIn: req.isLoggedIn });
+  res.render("home/index", { isLoggedIn: req.isLoggedIn });
 });
 
 app.use("*",(req,res)=>{
