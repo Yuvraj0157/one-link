@@ -241,7 +241,8 @@ border-color: #32383e;
 }
 
 .update_user .form-group .btn,
-#add_user .form-group .btn{
+#add_user .form-group .btn,
+#save_btn{
   width: 100%;
   padding: .9em 1em;
   background-color: #cc8fe9;
@@ -254,7 +255,8 @@ border-color: #32383e;
 }
 
 .update_user .form-group .btn:hover,
-#add_user .form-group .btn:hover{
+#add_user .form-group .btn:hover,
+#save_btn:hover{
     background-color: var(--dark);
     color: var(--border);
 }
