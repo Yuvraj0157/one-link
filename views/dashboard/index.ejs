@@ -1,0 +1,75 @@
+<%-include('include/_header')%>
+
+<div class="container">
+    <h1 style="padding-top: 15px; text-align: center; font-family: 'PT Sans', sans-serif;;">Dashboard</h1>
+    <h3 style="padding-top: 50px;padding-left:5px;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
+        <i class="fas fa-caret-square-up"></i>
+        Profile Views:
+        <span>
+            <% if(profile.totalViews) { %>
+                <%= profile.totalViews %>
+            <% } else { %>
+                0
+            <% } %>
+        </span>
+    </h3>
+</div>
+
+ <!-- Main Site -->
+ <main id="site-main">
+    <div class="container">
+       <div class="box-nav d-flex justify-between">
+           <a href="/dashboard/add-link" class="border-shadow">
+               <span class="text-gradient">New link <i class="fas fa-plus"></i></span>
+           </a>
+
+           <a href="/dashboard/handles" class="border-shadow">
+            <span class="text-gradient">Handles <i class="fas fa-globe"></i></span>
+           </a>
+
+           <a href="/appearance" class="border-shadow">
+            <span class="text-gradient"> Appearance <i class="fas fa-user"></i></span>
+           </a>
+       </div>
+
+       <form action="/" method="POST">
+           <table class="table">
+               <thead class="thead-dark">
+                   <tr>
+                       <th>ID</th>
+                       <th>Title</th>
+                       <th>URL</th>
+                       <th>Action</th>
+                   </tr>
+               </thead>
+               <tbody>
+                    <% for(const [index, link] of profile.links.entries()) { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= link.title %></td>
+                            <td><a style="text-decoration: none; color: black;" target="_blank" href="<%= link.url %>"><%= link.url %></a></td>
+                            <td>
+                                <a href="/dashboard/update-link?id=<%= link._id %>" class="btn border-shadow update">
+                                    <span class="text-gradient"><i class="fas fa-pencil-alt"></i></span>
+                                </a>
+                                <a href="/dashboard/delete-link?id=<%= link._id %>" class="btn border-shadow delete" data-id=<%= link._id %>>
+                                    <span class="text-gradient"><i class="fas fa-times"></i></span>
+                                </a>
+                            </td>
+                        </tr>
+                        <% } %>
+               </tbody>
+           </table>
+       </form>
+       <% if(profile.links.length==0){%>
+            <tr style="text-align: center;">
+                <h3>No links here . Please add a new link.</h3>
+            </tr>
+        <%}%>
+    </div>
+</main>
+<!-- /Main Site -->
+
+<!-- include footer -->
+<!-- <%-include('include/_footer')%> -->
+<!-- /include footer -->
