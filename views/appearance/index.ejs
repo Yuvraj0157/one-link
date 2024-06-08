@@ -70,29 +70,21 @@
                         <option value="dark" <%=data.theme==='dark' ? 'selected' : '' %>>Dark</option>
                         <option value="wave" <%=data.theme==='wave' ? 'selected' : '' %>>Wave</option>
                         <option value="purple" <%=data.theme==='purple' ? 'selected' : '' %>>Purple</option>
-                        <option value="hexagonal" <%=data.theme==='hexagonal' ? 'selected' : '' %>>Hexagonal
-                        </option>
+                        <option value="hexagonal" <%=data.theme==='hexagonal' ? 'selected' : '' %>>Hexagonal</option>
                         <option value="bluedot" <%=data.theme==='bluedot' ? 'selected' : '' %>>BlueDot</option>
-                        <option value="purpledot" <%=data.theme==='purpledot' ? 'selected' : '' %>>PurpleDot
-                        </option>
+                        <option value="purpledot" <%=data.theme==='purpledot' ? 'selected' : '' %>>PurpleDot</option>
                         <option value="shapes" <%=data.theme==='shapes' ? 'selected' : '' %>>Shapes</option>
                         <option value="snow" <%=data.theme==='snow' ? 'selected' : '' %>>Snow</option>
                         <option value="moon" <%=data.theme==='moon' ? 'selected' : '' %>>Moon</option>
-                        <option value="soundwave" <%=data.theme==='soundwave' ? 'selected' : '' %>>SoundWave
-                        </option>
-                        <option value="abstractpaper" <%=data.theme==='abstractpaper' ? 'selected' : '' %>
-                            >AbstractPaper</option>
-                        <option value="stockmarket" <%=data.theme==='stockmarket' ? 'selected' : '' %>
-                            >StockMarket</option>
-                        <option value="worldmapindia" <%=data.theme==='worldmapindia' ? 'selected' : '' %>
-                            >WorldMap-India</option>
-                        <option value="sprinkle" <%=data.theme==='sprinkle' ? 'selected' : '' %>>Sprinkle
-                        </option>
+                        <option value="soundwave" <%=data.theme==='soundwave' ? 'selected' : '' %>>SoundWave</option>
+                        <option value="abstractpaper" <%=data.theme==='abstractpaper' ? 'selected' : '' %>>AbstractPaper</option>
+                        <option value="stockmarket" <%=data.theme==='stockmarket' ? 'selected' : '' %>>StockMarket</option>
+                        <option value="worldmapindia" <%=data.theme==='worldmapindia' ? 'selected' : '' %>>WorldMap-India</option>
+                        <option value="sprinkle" <%=data.theme==='sprinkle' ? 'selected' : '' %>>Sprinkle</option>
                         <option value="meteor" <%=data.theme==='meteor' ? 'selected' : '' %>>Meteor</option>
-                        <option value="masscircles" <%=data.theme==='masscircles' ? 'selected' : '' %>
-                            >MassCircles</option>
-                        <option value="animatedshape" <%=data.theme==='animatedshape' ? 'selected' : '' %>
-                            >AnimatedShape</option>
+                        <option value="masscircles" <%=data.theme==='masscircles' ? 'selected' : '' %>>MassCircles</option>
+                        <option value="animatedshape" <%=data.theme==='animatedshape' ? 'selected' : '' %>>AnimatedShape</option>
+                        <option value="meteor" <%=data.theme==='meteor' ? 'selected' : '' %>>Meteor</option>
                     </select>
                     <a class="modal-open btn">Change theme</a>
                 </div>
@@ -202,6 +194,11 @@
                                         IMG</div>
                                     <p class="theme-name">AnimatedShape</p>
                                 </div>
+                                <div class="theme-card meteor">
+                                    <div class="theme-img" style="background-color: #212529; color: #9AA2E5;">
+                                        IMG</div>
+                                    <p class="theme-name">Meteor</p>
+                                </div>
                             </div>
                         </div>
                         <a class="theme-submit">Done</a>
@@ -299,6 +296,7 @@
     document.querySelector('.sprinkle').addEventListener('click', function(){setTheme('sprinkle')})
     document.querySelector('.masscircles').addEventListener('click', function(){setTheme('masscircles')})
     document.querySelector('.animatedshape').addEventListener('click', function(){setTheme('animatedshape')})
+    document.querySelector('.meteor').addEventListener('click', function(){setTheme('meteor')})
 </script>
 
 <!-- include footer -->
