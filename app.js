@@ -1,11 +1,9 @@
 const express = require("express");
 const morgan = require("morgan");
-const axios = require("axios");
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const flash = require('express-flash');
-const _ = require('lodash');
 const mongoose = require("mongoose");
 require("dotenv").config();
 const path = require('path');
