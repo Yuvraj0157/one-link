@@ -15,7 +15,7 @@ router.get('/:username',(req,res,next)=>{
             await Profile.updateOne({userid:user._id},{$inc: {totalViews:1}});
             Profile.findOne({userid:user._id})
             .then((profile)=>{
-                res.render('userpage/index.ejs',{ profile:profile,username:user.username,email:user.email});
+                res.render('userpage/index',{ profile:profile,username:user.username,email:user.email});
             })
             .catch((err)=>{
                 next();
