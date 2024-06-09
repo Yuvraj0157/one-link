@@ -134,16 +134,16 @@ router.post('/handles',(req,res)=>{
         newData = {...profile.handles,...data};
         Profile.updateOne({userid:req.userID},{handles:newData})
         .then(()=>{
-            res.status(200).render('/dashboard/handles');
+            res.json({status:"success",message:"Handles updated successfully"});
         })
         .catch((err)=>{
             console.log(err);
-            res.status(500).render('500');
+            res.json({status:"error",message:"An error occurred while updating handles."});
         })
     })
     .catch((err)=>{
         console.log(err);
-        res.status(500).render('500');
+        res.json({status:"error",message:"An error occurred while updating handles."});
     })
 });
 

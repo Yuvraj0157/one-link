@@ -123,42 +123,56 @@
 <!-- /Main Site -->
  
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('handle_form');
-    const saveButton = document.getElementById('save_btn');
+$(document).ready(function() {
+    const form = $('#handle_form');
+    const saveButton = $('#save_btn');
     const originalValues = {};
 
     // Save the original values of the input fields
-    Array.from(form.elements).forEach(element => {
-        if (element.tagName === 'INPUT') {
-            originalValues[element.name] = element.value;
-        }
+    form.find('input').each(function() {
+        originalValues[this.name] = this.value;
     });
 
-    saveButton.addEventListener('click', () => {
+    saveButton.click(function(event) {
+        event.preventDefault();
         const changedData = {};
 
         // Check for changed values
-        Array.from(form.elements).forEach(element => {
-            if (element.tagName === 'INPUT' && element.value !== originalValues[element.name]) {
-                changedData[element.name] = element.value;
+        form.find('input').each(function() {
+            if (this.value !== originalValues[this.name]) {
+                changedData[this.name] = this.value;
             }
         });
 
         // Send changed data to the backend
         if (Object.keys(changedData).length > 0) {
-            fetch('/dashboard/handles', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
+            $.ajax({
+                url: '/dashboard/handles',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(changedData),
+                success: function(data) {
+                    if (data.status === 'success') {
+                        swal('Success', data.message, 'success')
+                        .then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        swal('Error', data.message, 'error')
+                        .then(() => {
+                            location.reload();
+                        });
+                    }
                 },
-                body: JSON.stringify(changedData),
-            })
+                error: function(xhr, status, error) {
+                    swal('Error', 'An error occurred while saving changes.', 'error');
+                }
+            });
         } else {
-            swal('No changes', 'You have not made any changes', 'info')
+            swal('No changes', 'You have not made any changes', 'info');
         }
     });
-}); 
+});
 </script>
 
 <!-- include footer -->
