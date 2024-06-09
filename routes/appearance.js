@@ -75,7 +75,7 @@ router.post('/', (req, res) => {
       };
   
       if (req.file) {
-        data.photo = req.file.location;
+        data.photo = req.file.location + "?v=1.1";
       }
   
       Profile.findOneAndUpdate({ userid: req.userID }, data)
