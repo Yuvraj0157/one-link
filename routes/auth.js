@@ -282,9 +282,9 @@ router.get('/verify-email/:token', async (req, res) => {
             if (decoded) {
                 const user = await User.findOne({ _id: decoded.userID });
                 if (user) {
-                    user.isVerified = true;
+                    user.status = 'active';
                     await user.save();
-                    res.redirect('/login');
+                    res.redirect('/dashboard');
                 } else {
                     res.status(404).render('404');
                 }
