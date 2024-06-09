@@ -153,7 +153,7 @@ router.post('/login',
 
 router.get('/logout', (req, res) => {
     res.clearCookie('jwt');
-    res.redirect('/login');
+    res.redirect('/');
 });
 
 router.get('/forgot-password', (req, res) => {
