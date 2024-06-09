@@ -7,6 +7,8 @@ const flash = require('express-flash');
 const mongoose = require("mongoose");
 require("dotenv").config();
 const path = require('path');
+const compression = require('compression');
+// const helmet = require('helmet');
 
 const { isAuth, isVerified } = require('./middlewares/auth');
 
@@ -30,6 +32,10 @@ app.use(session({
     // cookie: { maxAge: 60000 }
 }));
 app.use(flash());
+app.use(compression());
+// app.use(helmet({
+//   contentSecurityPolicy: false,
+// }));
 app.set("view engine", "ejs");
 app.set('views', path.join(__dirname, 'views'));
 
