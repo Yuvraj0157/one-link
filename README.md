@@ -1,11 +1,11 @@
 <p align="center"><img src="https://onelinkprofile.s3.ap-south-1.amazonaws.com/image-removebg-preview.png" alt="Logo" width="250px" height="250px""></p>
 
 
-<a href="https://one-link.live" style="text-decoration:none;font-size=20px;">OneLink </a> is your go-to solution for centralizing all your online links in one place. Our platform is free and easy to use, allowing you to create a personalized link page that includes links to your social media profiles, personal websites, blogs, portfolios, and more.
+<a href="https://onelink-ej3n.onrender.com/" style="text-decoration:none;font-size=20px;">OneLink </a> is your go-to solution for centralizing all your online links in one place. Our platform is free and easy to use, allowing you to create a personalized link page that includes links to your social media profiles, personal websites, blogs, portfolios, and more.
 
 Whether you're an influencer, a business owner, or simply someone who wants to organize their online presence, OneLink makes it effortless to simplify the journey for your audience.
 
-Sample profile: [OneLink](https://one-link.live/profile/OneLink)
+Sample profile: [Yuvraj Singh](https://onelink-ej3n.onrender.com/profile/yuvraj0157)
 
 ## Tools:
 - Node.js
