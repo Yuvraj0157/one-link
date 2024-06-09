@@ -1,7 +1,7 @@
-<center><img src="image-removebg-preview.png" alt="Logo" width="200px" height="200px"></center>
+<p align="center"><img src="image-removebg-preview.png" alt="Logo" width="250px" height="250px""></p>
 
 
-<a href="https://one-link.live" style="text-decoration:none;font-size=20px;">OneLink </a> is your go-to solution for centralizing all your online links in one place. Our platform is free and easy to use, allowing you to create a personalized link page that includes links to your social media profiles, personal website, blogs, portfolios, and more.
+<a href="https://one-link.live" style="text-decoration:none;font-size=20px;">OneLink </a> is your go-to solution for centralizing all your online links in one place. Our platform is free and easy to use, allowing you to create a personalized link page that includes links to your social media profiles, personal websites, blogs, portfolios, and more.
 
 Whether you're an influencer, a business owner, or simply someone who wants to organize their online presence, OneLink makes it effortless to simplify the journey for your audience.
 
@@ -11,19 +11,18 @@ Sample profile: [OneLink](https://one-link.live/profile/OneLink)
 - Node.js
 - Express.js
 - MongoDB (Mongoose)
-- HTML,CSS,JS
+- HTML, CSS, JS
 - EJS
 - AWS S3
 
 
 ## Features:
 - 🌐 Centralize all your online links in one place
-- 🆓 Free and easy to use platform
-- 🔗 Create a personalized profile with profile picture, title, bio , and themes.
+- 🆓 Free and easy-to-use platform
+- 🔗 Create a personalized profile with profile picture, title, bio, and themes.
 - 🔒 Secure token-based login and registration system
 - 📧 Email verification and password reset
 - 📈 Analytics to track the number of clicks on your profile
-- 
 
 
 ## Setup:
