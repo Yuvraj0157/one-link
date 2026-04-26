@@ -60,7 +60,7 @@
         <div class="userbio" style="font-family:'Times New Roman', Times, serif; font-weight: bold;"> <%= profile.bio %> </div>
         <div class="userbtn">
             <% for(var i=0; i < profile.links.length; i++) { %>
-                <a class="btn" target="_blank" href="<%=profile.links[i].url%>">
+                <a class="btn" target="_blank" href="/track/link/<%= username %>/<%= profile.links[i]._id %>">
                     <p><%=profile.links[i].title%></p>
                 </a>
             <% } %>
