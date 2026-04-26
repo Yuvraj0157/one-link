@@ -20,6 +20,7 @@ const authRoutes = require("./routes/auth");
 const appearanceRoutes = require("./routes/appearance");
 const profileRoutes = require("./routes/profile");
 const dashboardRoutes = require("./routes/dashboard");
+const analyticsRoutes = require("./routes/analytics");
 
 const app = express();
 
@@ -93,6 +94,8 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(authRoutes);
 app.use('/dashboard',isAuth,isVerified,dashboardRoutes);
 app.use('/appearance',isAuth,isVerified,appearanceRoutes);
+app.use('/analytics',isAuth,isVerified,analyticsRoutes);
+app.use('/track',analyticsRoutes); // Public route for link tracking
 app.use('/profile',profileRoutes);
 
 app.get("/", isAuth, (req, res) => {
