@@ -1,0 +1,600 @@
+<%-include('include/_header')%>
+
+<!-- Bootstrap CSS for Analytics -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+<div class="container">
+    <h1 style="padding-top: 15px; text-align: center; font-family: 'PT Sans', sans-serif;">Analytics Dashboard</h1>
+    
+    <!-- Summary Cards -->
+    <div class="row" style="margin-top: 30px;">
+        <!-- Profile Views - Most Important -->
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-center" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;"
+                 data-bs-toggle="tooltip" data-bs-placement="top"
+                 title="Total number of times your profile page has been viewed since creation">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-eye"></i> Profile Views</h5>
+                    <h2 class="card-text"><%= totalViews %></h2>
+                    <small>All-time total</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Link Clicks -->
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;"
+                 data-bs-toggle="tooltip" data-bs-placement="top"
+                 title="Total clicks on all your links in the last 90 days. Older data is automatically deleted for privacy.">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-mouse-pointer"></i> Link Clicks</h5>
+                    <h2 class="card-text"><%= summary.totalClicks %></h2>
+                    <small>Last 90 days</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- This Week's Link Clicks -->
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;"
+                 data-bs-toggle="tooltip" data-bs-placement="top"
+                 title="Link clicks in the last 7 days. Compare with previous weeks to track growth.">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-calendar-week"></i> This Week</h5>
+                    <h2 class="card-text"><%= summary.weekClicks %></h2>
+                    <small>Link clicks (7 days)</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Today's Link Clicks -->
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+            <div class="card text-center" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;"
+                 data-bs-toggle="tooltip" data-bs-placement="top"
+                 title="Link clicks in the last 24 hours. Real-time activity indicator.">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-calendar-day"></i> Today</h5>
+                    <h2 class="card-text"><%= summary.todayClicks %></h2>
+                    <small>Link clicks (24 hrs)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-md-12 mb-4">
+            <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-bar"></i> Quick Stats</h5>
+                    <div class="row text-center" style="margin-top: 15px;">
+                        <div class="col-md-4" data-bs-toggle="tooltip" data-bs-placement="top"
+                             title="Average number of link clicks per day over the last 90 days">
+                            <h3><%= quickStats.avgClicksPerDay %></h3>
+                            <small>Avg Clicks/Day</small>
+                        </div>
+                        <div class="col-md-4" data-bs-toggle="tooltip" data-bs-placement="top"
+                             title="Day of the week when your links get the most clicks. Best day to share content!">
+                            <h3><%= quickStats.mostActiveDay %></h3>
+                            <small>Most Active Day</small>
+                        </div>
+                        <div class="col-md-4" data-bs-toggle="tooltip" data-bs-placement="top"
+                             title="Hour of the day when your links get the most clicks. Best time to post!">
+                            <h3><%= quickStats.peakHour %></h3>
+                            <small>Peak Hour</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row" style="margin-top: 20px;">
+        <!-- Daily Clicks Chart -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Clicks Over Time (Last 30 Days)</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="clicksChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Widgets Row - Equal 3 Columns -->
+    <div class="row">
+        <!-- Device Types -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-mobile-alt"></i> Device Types</h5>
+                </div>
+                <div class="card-body">
+                    <% if(deviceStats && deviceStats.length > 0) { %>
+                        <ul class="list-group list-group-flush">
+                            <% deviceStats.forEach(device => { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center" style="padding: 10px 0;">
+                                    <span>
+                                        <% if(device._id === 'Mobile') { %>
+                                            <i class="fas fa-mobile-alt" style="font-size: 18px; margin-right: 8px;"></i>
+                                        <% } else if(device._id === 'Desktop') { %>
+                                            <i class="fas fa-desktop" style="font-size: 18px; margin-right: 8px;"></i>
+                                        <% } else if(device._id === 'Tablet') { %>
+                                            <i class="fas fa-tablet-alt" style="font-size: 18px; margin-right: 8px;"></i>
+                                        <% } %>
+                                        <span style="font-size: 13px;"><%= device._id %></span>
+                                    </span>
+                                    <span class="badge bg-primary rounded-pill"><%= device.count %></span>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <% } else { %>
+                        <p class="text-muted text-center" style="margin-top: 20px;">
+                            <i class="fas fa-mobile-alt" style="font-size: 40px; opacity: 0.3;"></i><br>
+                            No device data yet
+                        </p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Countries -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-globe-americas"></i> Top Countries</h5>
+                </div>
+                <div class="card-body">
+                    <% if(summary.topCountries && summary.topCountries.length > 0) { %>
+                        <ul class="list-group list-group-flush">
+                            <% summary.topCountries.forEach(country => { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center" style="padding: 10px 0;">
+                                    <span>
+                                        <span style="font-size: 20px; margin-right: 8px;">
+                                            <%= String.fromCodePoint(...country.countryCode.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) %>
+                                        </span>
+                                        <span style="font-size: 13px;"><%= country._id %></span>
+                                    </span>
+                                    <span class="badge bg-success rounded-pill"><%= country.count %></span>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <% } else { %>
+                        <p class="text-muted text-center" style="margin-top: 20px;">
+                            <i class="fas fa-globe" style="font-size: 40px; opacity: 0.3;"></i><br>
+                            No location data yet
+                        </p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Referrers -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-share-alt"></i> Top Sources</h5>
+                </div>
+                <div class="card-body">
+                    <% if(summary.topReferrers && summary.topReferrers.length > 0) { %>
+                        <ul class="list-group list-group-flush">
+                            <% summary.topReferrers.forEach(ref => { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center" style="padding: 10px 0;">
+                                    <span style="font-size: 12px; overflow: hidden; text-overflow: ellipsis;">
+                                        <% if(ref._id === 'direct') { %>
+                                            <i class="fas fa-keyboard"></i> Direct
+                                        <% } else if(ref._id.includes('twitter')) { %>
+                                            <i class="fab fa-twitter"></i> Twitter
+                                        <% } else if(ref._id.includes('facebook')) { %>
+                                            <i class="fab fa-facebook"></i> Facebook
+                                        <% } else if(ref._id.includes('instagram')) { %>
+                                            <i class="fab fa-instagram"></i> Instagram
+                                        <% } else if(ref._id.includes('google')) { %>
+                                            <i class="fab fa-google"></i> Google
+                                        <% } else { %>
+                                            <i class="fas fa-link"></i> <%= ref._id.substring(0, 15) %>
+                                        <% } %>
+                                    </span>
+                                    <span class="badge bg-primary rounded-pill"><%= ref.count %></span>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <% } else { %>
+                        <p class="text-muted text-center" style="margin-top: 20px;">
+                            <i class="fas fa-share-alt" style="font-size: 40px; opacity: 0.3;"></i><br>
+                            No referrer data yet
+                        </p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Links -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Top Performing Links</h5>
+                    <a href="/analytics/export?format=csv" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </a>
+                </div>
+                <div class="card-body">
+                    <% if(summary.topLinks && summary.topLinks.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Link Title</th>
+                                        <th>URL</th>
+                                        <th>Clicks</th>
+                                        <th data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="Click-Through Rate: Percentage of profile visitors who clicked this link">
+                                            CTR <i class="fas fa-info-circle" style="font-size: 10px;"></i>
+                                        </th>
+                                        <th data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="Performance level based on click count: Excellent (100+), Popular (50+), Growing (20+), Good (5+), New (1-4), No Clicks (0)">
+                                            Status <i class="fas fa-info-circle" style="font-size: 10px;"></i>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% summary.topLinks.forEach((link, index) => {
+                                        const linkData = linksWithClicks.find(l => l.title === link.title);
+                                        const ctr = linkData ? linkData.ctr : 0;
+                                        const badge = linkData ? linkData.badge : { icon: '💤', text: 'Inactive', class: 'secondary' };
+                                    %>
+                                        <tr>
+                                            <td>
+                                                <% if(index === 0) { %>
+                                                    <span style="font-size: 20px;">🥇</span>
+                                                <% } else if(index === 1) { %>
+                                                    <span style="font-size: 20px;">🥈</span>
+                                                <% } else if(index === 2) { %>
+                                                    <span style="font-size: 20px;">🥉</span>
+                                                <% } else { %>
+                                                    <%= index + 1 %>
+                                                <% } %>
+                                            </td>
+                                            <td><strong><%= link.title %></strong></td>
+                                            <td>
+                                                <a href="<%= link.url %>" target="_blank" style="font-size: 12px;">
+                                                    <%= link.url.substring(0, 40) %><%= link.url.length > 40 ? '...' : '' %>
+                                                </a>
+                                            </td>
+                                            <td><span class="badge bg-success"><%= link.clicks %></span></td>
+                                            <td>
+                                                <span class="badge bg-<%= ctr >= 5 ? 'success' : ctr >= 2 ? 'warning' : 'secondary' %>"
+                                                      data-bs-toggle="tooltip" data-bs-placement="top"
+                                                      title="<%= link.clicks %> clicks out of <%= totalViews %> profile views">
+                                                    <%= ctr %>%
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<%= badge.class %>"
+                                                      data-bs-toggle="tooltip" data-bs-placement="top"
+                                                      title="<%= link.clicks %> total clicks">
+                                                    <i class="<%= badge.icon %>"></i> <%= badge.text %>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">No click data yet. Share your profile to start tracking!</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Links with Click Counts -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>All Links Performance</h5>
+                </div>
+                <div class="card-body">
+                    <% if(linksWithClicks && linksWithClicks.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Status</th>
+                                        <th>Title</th>
+                                        <th>URL</th>
+                                        <th>Clicks</th>
+                                        <th>CTR</th>
+                                        <th>Tracking URL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% linksWithClicks.forEach((link, index) => { %>
+                                        <tr>
+                                            <td><%= index + 1 %></td>
+                                            <td>
+                                                <span class="badge bg-<%= link.badge.class %>">
+                                                    <i class="<%= link.badge.icon %>"></i> <%= link.badge.text %>
+                                                </span>
+                                            </td>
+                                            <td><strong><%= link.title %></strong></td>
+                                            <td>
+                                                <a href="<%= link.url %>" target="_blank" style="font-size: 12px;">
+                                                    <%= link.url.substring(0, 50) %><%= link.url.length > 50 ? '...' : '' %>
+                                                </a>
+                                            </td>
+                                            <td><span class="badge bg-info"><%= link.clicks %></span></td>
+                                            <td>
+                                                <span class="badge bg-<%= link.ctr >= 5 ? 'success' : link.ctr >= 2 ? 'warning' : 'secondary' %>">
+                                                    <%= link.ctr %>%
+                                                </span>
+                                                <small class="text-muted d-block" style="font-size: 10px;">
+                                                    <%= link.clicks %> / <%= totalViews %> views
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <code style="font-size: 11px;">/track/link/<%= user.username %>/<%= link._id %></code>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">No links added yet. <a href="/dashboard/add-link">Add your first link</a></p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Clicks -->
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>Recent Activity (Last 20 Clicks)</h5>
+                    <small class="text-muted">
+                        <i class="fas fa-clock"></i> Times shown in your local timezone
+                    </small>
+                </div>
+                <div class="card-body">
+                    <% if(recentClicks && recentClicks.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-clock"></i> When</th>
+                                        <th><i class="fas fa-link"></i> Link Clicked</th>
+                                        <th><i class="fas fa-external-link-alt"></i> Destination</th>
+                                        <th><i class="fas fa-share-alt"></i> Source</th>
+                                        <th><i class="fas fa-globe"></i> Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% recentClicks.forEach(click => { %>
+                                        <tr>
+                                            <td style="font-size: 11px;">
+                                                <div class="timestamp-display">
+                                                    <div class="relative-time text-primary fw-bold"></div>
+                                                    <div class="full-time text-muted" style="font-size: 10px;"></div>
+                                                </div>
+                                                <script>
+                                                    (function() {
+                                                        const timestamp = new Date('<%= click.timestamp %>');
+                                                        const container = document.currentScript.previousElementSibling;
+                                                        
+                                                        // Full date/time with timezone
+                                                        const fullTime = timestamp.toLocaleString(undefined, {
+                                                            year: 'numeric',
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            second: '2-digit',
+                                                            timeZoneName: 'short'
+                                                        });
+                                                        
+                                                        // Relative time
+                                                        const now = new Date();
+                                                        const diffMs = now - timestamp;
+                                                        const diffSecs = Math.floor(diffMs / 1000);
+                                                        const diffMins = Math.floor(diffSecs / 60);
+                                                        const diffHours = Math.floor(diffMins / 60);
+                                                        const diffDays = Math.floor(diffHours / 24);
+                                                        
+                                                        let relativeTime;
+                                                        if (diffSecs < 60) {
+                                                            relativeTime = 'Just now';
+                                                        } else if (diffMins < 60) {
+                                                            relativeTime = diffMins === 1 ? '1 minute ago' : `${diffMins} minutes ago`;
+                                                        } else if (diffHours < 24) {
+                                                            relativeTime = diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+                                                        } else if (diffDays < 7) {
+                                                            relativeTime = diffDays === 1 ? 'Yesterday' : `${diffDays} days ago`;
+                                                        } else if (diffDays < 30) {
+                                                            const weeks = Math.floor(diffDays / 7);
+                                                            relativeTime = weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+                                                        } else if (diffDays < 365) {
+                                                            const months = Math.floor(diffDays / 30);
+                                                            relativeTime = months === 1 ? '1 month ago' : `${months} months ago`;
+                                                        } else {
+                                                            const years = Math.floor(diffDays / 365);
+                                                            relativeTime = years === 1 ? '1 year ago' : `${years} years ago`;
+                                                        }
+                                                        
+                                                        container.querySelector('.relative-time').textContent = relativeTime;
+                                                        container.querySelector('.full-time').textContent = fullTime;
+                                                    })();
+                                                </script>
+                                            </td>
+                                            <td><strong><%= click.linkTitle %></strong></td>
+                                            <td style="font-size: 11px;">
+                                                <a href="<%= click.linkUrl %>" target="_blank" style="text-decoration: none;">
+                                                    <%= click.linkUrl.substring(0, 40) %><%= click.linkUrl.length > 40 ? '...' : '' %>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <% if(click.referrer === 'direct') { %>
+                                                    <span class="badge bg-secondary">Direct</span>
+                                                <% } else if(click.referrer.includes('twitter')) { %>
+                                                    <span class="badge bg-info">Twitter</span>
+                                                <% } else if(click.referrer.includes('facebook')) { %>
+                                                    <span class="badge bg-primary">Facebook</span>
+                                                <% } else if(click.referrer.includes('instagram')) { %>
+                                                    <span class="badge bg-danger">Instagram</span>
+                                                <% } else if(click.referrer.includes('linkedin')) { %>
+                                                    <span class="badge bg-primary">LinkedIn</span>
+                                                <% } else if(click.referrer.includes('google')) { %>
+                                                    <span class="badge bg-success">Google</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-light text-dark" style="font-size: 10px;">
+                                                        <%= click.referrer.substring(0, 20) %>
+                                                    </span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if(click.countryCode && click.countryCode !== 'XX') { %>
+                                                    <span style="font-size: 18px;">
+                                                        <%= String.fromCodePoint(...click.countryCode.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) %>
+                                                    </span>
+                                                    <small><%= click.country %></small>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary">Unknown</span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">No clicks recorded yet. Share your profile to start tracking!</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Retention Notice -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert" style="margin-top: 20px;">
+                <i class="fas fa-info-circle"></i>
+                <strong>Data Retention:</strong> Analytics data is automatically deleted after 90 days for privacy and storage optimization.
+                Export your data regularly if you need long-term records.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<script>
+// Prepare data for chart
+// @ts-ignore - EJS template syntax
+const dailyClicksData = <%- JSON.stringify(dailyClicks) %>;
+
+// Create labels and data arrays
+const labels = dailyClicksData.map(d => {
+    const date = new Date(d._id);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+});
+
+const data = dailyClicksData.map(d => d.count);
+
+// Create chart
+const ctx = document.getElementById('clicksChart').getContext('2d');
+const clicksChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Clicks',
+            data: data,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// View link details function
+function viewLinkDetails(linkId) {
+    window.location.href = `/analytics/link/${linkId}`;
+}
+</script>
+
+<!-- Bootstrap JS for Tooltips -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+<script>
+// Initialize Bootstrap tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+
+<style>
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: bold;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.badge {
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+code {
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+</style>
