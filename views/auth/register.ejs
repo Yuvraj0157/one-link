@@ -121,6 +121,7 @@
         <%= error %>
         </div>
       <% } %>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <label for="inputUsername" class="sr-only">Username</label>
       <input type="text" name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
       <label for="inputEmail" class="sr-only">Email address</label>

@@ -88,10 +88,19 @@ router.post('/update-link',(req,res)=>{
     })
 });
 
-router.get('/delete-link',(req,res)=>{
+router.post('/delete-link',(req,res)=>{
+    // CSRF verification
+    const token = req.body._csrf;
+    if (!token || token !== req.session.csrfToken) {
+        return res.status(403).render('403', {
+            message: 'Invalid security token. Please try again.',
+            csrfToken: req.session.csrfToken
+        });
+    }
+
     Profile.findOne({userid:req.userID})
     .then((profile)=>{
-        const link = profile.links.id(req.query.id);
+        const link = profile.links.id(req.body.id);
         link.deleteOne();
         profile.save()
         .then(()=>{
@@ -127,8 +136,20 @@ router.get('/handles',(req,res)=>{
 });
 
 router.post('/handles',(req,res)=>{
+    // CSRF verification for AJAX request
+    const token = req.body._csrf || req.headers['x-csrf-token'];
+    if (!token || token !== req.session.csrfToken) {
+        return res.status(403).json({
+            status: "error",
+            message: "Invalid CSRF token"
+        });
+    }
+
     // console.log(req.body);
     const data = {...req.body};
+    // Remove CSRF token from data before saving
+    delete data._csrf;
+    
     Profile.findOne({userid:req.userID})
     .then((profile)=>{
         newData = {...profile.handles,...data};

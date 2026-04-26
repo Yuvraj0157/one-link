@@ -15,6 +15,7 @@
         </div>
 
         <form action="/dashboard/update-link" class="update_user" method="POST" id="update_link">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="new_user">
                 <div class="form-group">
                     <label for="title" class="text-light">Title</label>

@@ -10,6 +10,7 @@ const emailController = require('../utils/emailController');
 const User = require('../models/user');
 const Profile = require('../models/profile');
 const { default: mongoose } = require('mongoose');
+const { authLimiter, passwordResetLimiter, emailLimiter } = require('../middlewares/security');
 
 // Generate a random buffer of 32 bytes (256 bits)
 
@@ -28,7 +29,8 @@ router.get('/register', (req, res) => {
     res.render('auth/register', { title: 'Register', error: message});
 });
 
-router.post('/register', 
+router.post('/register',
+    authLimiter,
     [
         check('email')
         .isEmail()
@@ -105,7 +107,8 @@ router.get('/login', (req, res) => {
     res.render('auth/login', { title: 'Login', error: message});
 });
 
-router.post('/login', 
+router.post('/login',
+    authLimiter,
     [
         check('email')
         .isEmail()
@@ -132,7 +135,12 @@ router.post('/login',
                             if (err) {
                                 console.log(err);
                             }
-                            res.cookie('jwt', token, { httpOnly: true, maxAge: 3 * 24 * 60 * 60 * 1000, secure: true});
+                            res.cookie('jwt', token, {
+                                httpOnly: true,
+                                maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days to match JWT expiry
+                                secure: process.env.NODE_ENV === 'production',
+                                sameSite: 'strict'
+                            });
                             res.redirect('/dashboard');
                         });
                     } else {
@@ -167,6 +175,7 @@ router.get('/forgot-password', (req, res) => {
 });
 
 router.post('/forgot-password',
+    passwordResetLimiter,
     [
         check('email')
         .isEmail()
@@ -268,7 +277,7 @@ router.post('/reset-password',
     }
 );
 
-router.get('/verify-email/:token', async (req, res) => {
+router.get('/verify-email/:token', emailLimiter, async (req, res) => {
     if (!req.params.token) {
         res.status(404).render('404');
     }

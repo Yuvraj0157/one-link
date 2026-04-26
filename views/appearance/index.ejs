@@ -15,6 +15,7 @@
         </div>
 
         <form action="/appearance" class="update_user" method="POST" id="appearance_form" enctype="multipart/form-data">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="new_user">
                 <div class="avatar-wrapper">
                     <% if(data.photo){ %>
@@ -237,11 +238,13 @@
         // Handle delete action
         $("#deleteIcon").on('click', function () {
             const uri = $('#profilePhoto').data('photo');
+            const csrfToken = $('input[name="_csrf"]').val();
             $.ajax({
-                url: '/appearance/delete', 
+                url: '/appearance/delete',
                 type: 'POST',
                 data: {
                     uri: uri,
+                    _csrf: csrfToken,
                 },
                 success: function (response) {
                     if (response.status === 'success') {

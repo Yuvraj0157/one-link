@@ -50,6 +50,7 @@
         </div>
         <div class="form_">
             <form id="handle_form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <div class="form_elem">
                     <label for="exampleInputEmail1" class="form-label">Email address</label>
                     <input type="email" placeholder="your@emailaddress.com" class="form-control" id="email_url" name="email" value="<%= data.handles.email || '' %>">
@@ -146,6 +147,8 @@ $(document).ready(function() {
 
         // Send changed data to the backend
         if (Object.keys(changedData).length > 0) {
+            const csrfToken = $('input[name="_csrf"]').val();
+            changedData._csrf = csrfToken;
             $.ajax({
                 url: '/dashboard/handles',
                 type: 'POST',

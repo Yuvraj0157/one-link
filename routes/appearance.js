@@ -66,8 +66,20 @@ router.post('/', (req, res) => {
         return res.redirect('/appearance');
       } else if (err) {
         req.flash('error', 'An unknown error occurred.');
-        return res.redirect('/appearance'); 
+        return res.redirect('/appearance');
       }
+      
+      // CSRF token verification after multer processes the form
+      const token = req.body._csrf;
+      const sessionToken = req.session.csrfToken;
+      
+      if (!token || !sessionToken || token !== sessionToken) {
+        console.warn('CSRF token validation failed in appearance route');
+        return res.status(403).render('403', {
+          error: 'Invalid security token. Please refresh the page and try again.'
+        });
+      }
+      
       let data = {
         title: req.body.title,
         bio: req.body.bio,
@@ -90,6 +102,15 @@ router.post('/', (req, res) => {
   });
 
 router.post("/delete", async (req, res) => {
+  // CSRF verification for AJAX request
+  const token = req.body._csrf || req.headers['x-csrf-token'];
+  if (!token || token !== req.session.csrfToken) {
+    return res.status(403).json({
+      status: "error",
+      message: "Invalid CSRF token"
+    });
+  }
+
   const s3PhotoKey = req.body.uri.split("/")[3];
   // console.log(s3PhotoKey);
   const params = {
