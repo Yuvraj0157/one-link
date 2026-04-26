@@ -13,10 +13,22 @@ const authLimiter = rateLimit({
 // Rate limiter for general routes
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
+    max: 500, // Limit each IP to 500 requests per 15 minutes (more reasonable for development)
     message: 'Too many requests from this IP, please try again later',
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+        // Skip rate limiting for static assets
+        return req.path.startsWith('/public/') ||
+               req.path.startsWith('/css/') ||
+               req.path.startsWith('/js/') ||
+               req.path.endsWith('.css') ||
+               req.path.endsWith('.js') ||
+               req.path.endsWith('.ico') ||
+               req.path.endsWith('.svg') ||
+               req.path.endsWith('.png') ||
+               req.path.endsWith('.jpg');
+    }
 });
 
 // Rate limiter for email verification resend
