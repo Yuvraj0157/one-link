@@ -10,6 +10,7 @@ const { deleteCache } = require('../utils/cache');
 router.get('/:username', cachePageMiddleware(300, profileCacheKey), async (req, res, next) => {
     try {
         const { username } = req.params;
+        const { preview } = req.query;
         
         // Only select needed fields for user lookup
         const user = await User.findOne({ username }).select('_id username email').lean();
@@ -19,8 +20,10 @@ router.get('/:username', cachePageMiddleware(300, profileCacheKey), async (req, 
             return next();
         }
         
-        // Increment view count
-        await Profile.updateOne({ userid: user._id }, { $inc: { totalViews: 1 } });
+        // Increment view count (skip for preview mode)
+        if (!preview) {
+            await Profile.updateOne({ userid: user._id }, { $inc: { totalViews: 1 } });
+        }
         
         // Get profile with only needed fields
         const profile = await Profile.findOne({ userid: user._id })
@@ -31,10 +34,21 @@ router.get('/:username', cachePageMiddleware(300, profileCacheKey), async (req, 
             return next();
         }
         
+        // Override theme if preview parameter is provided
+        if (preview) {
+            profile.theme = preview;
+        }
+        
+        // Filter to show only active links on public profile
+        if (profile.links) {
+            profile.links = profile.links.filter(link => link.active !== false);
+        }
+        
         res.render('userpage/index', {
             profile: profile,
             username: user.username,
-            email: user.email
+            email: user.email,
+            isPreview: !!preview
         });
         
     } catch (err) {

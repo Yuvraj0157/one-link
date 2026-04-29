@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
             .select('photo title bio theme')
             .lean();
         
-        res.render('appearance/index', { user: user, data: profile });
+        res.render('appearance/index', { user: user, data: profile, pageTitle: 'Appearance' });
     } catch (err) {
         console.log(err);
         res.status(500).render('500');
@@ -65,19 +65,6 @@ router.post('/', (req, res) => {
         return res.redirect('/appearance');
       }
       
-      // CSRF token verification after multer processes the form
-      const token = req.body._csrf;
-      const sessionToken = req.session.csrfToken;
-      
-      if (!token || !sessionToken || token !== sessionToken) {
-        logger.warn('CSRF token validation failed in appearance route', {
-          correlationId: req.correlationId
-        });
-        return res.status(403).render('403', {
-          error: 'Invalid security token. Please refresh the page and try again.'
-        });
-      }
-      
       let data = {
         title: req.body.title,
         bio: req.body.bio,
@@ -86,8 +73,16 @@ router.post('/', (req, res) => {
   
       try {
         if (req.file) {
-          // Validate image
-          const validation = await validateImage(req.file.buffer, {
+          // Optimize image first (resize to 800x800)
+          const optimizedBuffer = await optimizeImage(req.file.buffer, {
+            width: 800,
+            height: 800,
+            quality: 85,
+            format: 'jpeg'
+          });
+
+          // Validate optimized image (will always pass since we resized to 800x800)
+          const validation = await validateImage(optimizedBuffer, {
             maxSize: 5 * 1024 * 1024, // 5MB
             minWidth: 100,
             minHeight: 100,
@@ -99,14 +94,6 @@ router.post('/', (req, res) => {
             req.flash('error', validation.errors[0]);
             return res.redirect('/appearance');
           }
-
-          // Optimize image
-          const optimizedBuffer = await optimizeImage(req.file.buffer, {
-            width: 800,
-            height: 800,
-            quality: 85,
-            format: 'jpeg'
-          });
 
           // Upload optimized image to S3
           const key = `${req.userID}.jpg`;
@@ -156,14 +143,6 @@ router.post('/', (req, res) => {
   });
 
 router.post("/delete", async (req, res) => {
-  // CSRF verification for AJAX request
-  const token = req.body._csrf || req.headers['x-csrf-token'];
-  if (!token || token !== req.session.csrfToken) {
-    return res.status(403).json({
-      status: "error",
-      message: "Invalid CSRF token"
-    });
-  }
 
   const s3PhotoKey = req.body.uri.split("/")[3];
   // console.log(s3PhotoKey);

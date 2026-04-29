@@ -116,21 +116,50 @@ router.get('/link/:username/:linkId', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
+        const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
+        
+        // Get date range from query params
+        const { startDate, endDate } = req.query;
+        let dateFilter = {};
+        
+        if (startDate && endDate) {
+            dateFilter = {
+                timestamp: {
+                    $gte: new Date(startDate),
+                    $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999))
+                }
+            };
+        }
 
         const user = await User.findOne({ _id: req.userID }).select('username email').lean();
         const profile = await Profile.findOne({ userid: req.userID }).select('links totalViews').lean();
         
-        // Get analytics summary
-        const summary = await LinkClick.getAnalyticsSummary(req.userID);
+        // Get analytics summary with date filter
+        const summary = await LinkClick.getAnalyticsSummary(req.userID, dateFilter);
         
-        // Get daily clicks for chart (last 30 days)
-        const dailyClicks = await LinkClick.getDailyClicks(req.userID, 30);
+        // Filter topLinks to show only ACTIVE links that exist in profile
+        const activeLinkIds = profile.links
+            .filter(link => link.active !== false)
+            .map(link => link._id.toString());
         
-        // Get recent clicks with pagination
-        const totalClicks = await LinkClick.countDocuments({ userId: req.userID });
-        const recentClicks = await LinkClick.find({ userId: req.userID })
+        summary.topLinks = summary.topLinks.filter(link =>
+            activeLinkIds.includes(link._id.toString())
+        );
+        
+        // Get daily clicks for chart with date filter
+        let days = 30;
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+        }
+        const dailyClicks = await LinkClick.getDailyClicks(req.userID, days, dateFilter);
+        
+        // Get recent clicks with pagination and date filter
+        const clickQuery = { userId: req.userID, ...dateFilter };
+        const totalClicks = await LinkClick.countDocuments(clickQuery);
+        const recentClicks = await LinkClick.find(clickQuery)
             .select('linkTitle linkUrl timestamp referrer deviceType country')
             .sort({ timestamp: -1 })
             .skip(skip)
@@ -141,6 +170,8 @@ router.get('/', async (req, res) => {
         
         // Get clicks per link with CTR and performance badges
         const totalViews = profile.totalViews || 0;
+        
+        // Get click data for ALL links (active and inactive)
         const linksWithClicks = await Promise.all(
             profile.links.map(async (link) => {
                 const clickCount = await LinkClick.getClickCount(link._id);
@@ -151,20 +182,22 @@ router.get('/', async (req, res) => {
                     ...link,
                     clicks: clickCount,
                     ctr: ctr,
-                    badge: badge
+                    badge: badge,
+                    isActive: link.active !== false
                 };
             })
         );
         
-        // Calculate device type distribution
+        // Calculate device type distribution with date filter
+        const deviceMatch = { userId: new mongoose.Types.ObjectId(req.userID), ...dateFilter };
         const deviceStats = await LinkClick.aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(req.userID) } },
+            { $match: deviceMatch },
             { $group: { _id: '$deviceType', count: { $sum: 1 } } },
             { $sort: { count: -1 } }
         ]);
         
-        // Calculate quick stats
-        const allClicks = await LinkClick.find({ userId: req.userID });
+        // Calculate quick stats with date filter
+        const allClicks = await LinkClick.find(clickQuery);
         
         // Average clicks per day (last 90 days)
         const avgClicksPerDay = summary.totalClicks > 0 ? (summary.totalClicks / 90).toFixed(1) : 0;
@@ -209,8 +242,10 @@ router.get('/', async (req, res) => {
             totalViews,
             deviceStats,
             quickStats,
-            csrfToken: req.session.csrfToken,
             baseUrl: `${req.protocol}://${req.get('host')}`,
+            pageTitle: 'Analytics',
+            startDate: startDate || '',
+            endDate: endDate || '',
             pagination: {
                 page,
                 limit,
