@@ -1,3 +1,154 @@
+    </main>
+    
+    <!-- Offline Indicator -->
+    <div id="offlineIndicator" class="offline-indicator">
+        <i class="fas fa-wifi-slash"></i>
+        <span>You're offline. Some features may not work.</span>
+    </div>
+    
+    <!-- Modern Footer -->
+    <footer class="dashboard-footer">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <p class="footer-text mb-0">
+                        &copy; 2026 <strong>OneLink</strong> - Made with
+                        <i class="fas fa-heart text-danger"></i>
+                        by <a href="https://github.com/Yuvraj0157" target="_blank" class="footer-link">Yuvraj Singh</a>
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="footer-links">
+                        <a href="/" class="footer-link">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                        <a href="/dashboard" class="footer-link">
+                            <i class="fas fa-th-large"></i> Dashboard
+                        </a>
+                        <a href="mailto:projtodoapp@gmail.com" class="footer-link">
+                            <i class="fas fa-envelope"></i> Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
+    <style>
+        .dashboard-footer {
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 1.5rem 0;
+            margin-top: auto;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .footer-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .footer-text strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .footer-link:hover {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .footer-link i {
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-footer {
+                padding: 1.25rem 0;
+            }
+
+            .footer-links {
+                justify-content: center;
+                margin-top: 0.75rem;
+            }
+
+            .footer-text {
+                font-size: 0.85rem;
+            }
+
+            .footer-link {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .footer-links {
+                justify-content: flex-end;
+            }
+        }
+    </style>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery (for existing dashboard functionality) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <!-- Offline Indicator Script -->
+    <script>
+        // Offline/Online Detection
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        
+        function updateOnlineStatus() {
+            if (!navigator.onLine) {
+                offlineIndicator.classList.add('show');
+            } else {
+                offlineIndicator.classList.remove('show');
+            }
+        }
+        
+        // Check initial status
+        updateOnlineStatus();
+        
+        // Listen for online/offline events
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Periodic check (backup for browsers that don't fire events reliably)
+        setInterval(updateOnlineStatus, 5000);
+        
+        // Achievement Section Chevron Rotation
+        const achievementsCollapse = document.getElementById('achievementsCollapse');
+        const achievementChevron = document.getElementById('achievementChevron');
+        
+        if (achievementsCollapse && achievementChevron) {
+            achievementsCollapse.addEventListener('show.bs.collapse', function () {
+                achievementChevron.style.transform = 'rotate(180deg)';
+                achievementChevron.style.transition = 'transform 0.3s ease';
+            });
+            
+            achievementsCollapse.addEventListener('hide.bs.collapse', function () {
+                achievementChevron.style.transform = 'rotate(0deg)';
+            });
+        }
+    </script>
 </body>
 </html>
