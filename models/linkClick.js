@@ -73,15 +73,17 @@ linkClickSchema.statics.getUserClicks = async function(userId, startDate, endDat
 };
 
 // Static method to get analytics summary
-linkClickSchema.statics.getAnalyticsSummary = async function(userId) {
-    const totalClicks = await this.countDocuments({ userId });
+linkClickSchema.statics.getAnalyticsSummary = async function(userId, dateFilter = {}) {
+    const baseQuery = { userId, ...dateFilter };
+    const totalClicks = await this.countDocuments(baseQuery);
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     const todayClicks = await this.countDocuments({
         userId,
-        timestamp: { $gte: today }
+        timestamp: { $gte: today },
+        ...dateFilter
     });
     
     const last7Days = new Date();
@@ -89,7 +91,8 @@ linkClickSchema.statics.getAnalyticsSummary = async function(userId) {
     
     const weekClicks = await this.countDocuments({
         userId,
-        timestamp: { $gte: last7Days }
+        timestamp: { $gte: last7Days },
+        ...dateFilter
     });
     
     const last30Days = new Date();
@@ -97,12 +100,13 @@ linkClickSchema.statics.getAnalyticsSummary = async function(userId) {
     
     const monthClicks = await this.countDocuments({
         userId,
-        timestamp: { $gte: last30Days }
+        timestamp: { $gte: last30Days },
+        ...dateFilter
     });
     
-    // Top links
+    // Top links with date filter
     const topLinks = await this.aggregate([
-        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+        { $match: { userId: new mongoose.Types.ObjectId(userId), ...dateFilter } },
         {
             $group: {
                 _id: '$linkId',
@@ -115,9 +119,9 @@ linkClickSchema.statics.getAnalyticsSummary = async function(userId) {
         { $limit: 5 }
     ]);
     
-    // Top referrers
+    // Top referrers with date filter
     const topReferrers = await this.aggregate([
-        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+        { $match: { userId: new mongoose.Types.ObjectId(userId), ...dateFilter } },
         {
             $group: {
                 _id: '$referrer',
@@ -128,9 +132,9 @@ linkClickSchema.statics.getAnalyticsSummary = async function(userId) {
         { $limit: 5 }
     ]);
     
-    // Top countries
+    // Top countries with date filter
     const topCountries = await this.aggregate([
-        { $match: { userId: new mongoose.Types.ObjectId(userId), country: { $ne: 'Unknown' } } },
+        { $match: { userId: new mongoose.Types.ObjectId(userId), country: { $ne: 'Unknown' }, ...dateFilter } },
         {
             $group: {
                 _id: '$country',
@@ -154,17 +158,23 @@ linkClickSchema.statics.getAnalyticsSummary = async function(userId) {
 };
 
 // Static method to get daily clicks for chart
-linkClickSchema.statics.getDailyClicks = async function(userId, days = 30) {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    startDate.setHours(0, 0, 0, 0);
+linkClickSchema.statics.getDailyClicks = async function(userId, days = 30, dateFilter = {}) {
+    let matchQuery = {
+        userId: new mongoose.Types.ObjectId(userId),
+        ...dateFilter
+    };
+    
+    // If no date filter provided, use default days range
+    if (!dateFilter.timestamp) {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - days);
+        startDate.setHours(0, 0, 0, 0);
+        matchQuery.timestamp = { $gte: startDate };
+    }
     
     const dailyClicks = await this.aggregate([
         {
-            $match: {
-                userId: new mongoose.Types.ObjectId(userId),
-                timestamp: { $gte: startDate }
-            }
+            $match: matchQuery
         },
         {
             $group: {
