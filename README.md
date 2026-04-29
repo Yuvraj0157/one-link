@@ -1,59 +1,167 @@
-<p align="center"><img src="https://onelinkprofile.s3.ap-south-1.amazonaws.com/image-removebg-preview.png" alt="Logo" width="250px" height="250px""></p>
+<p align="center"><img src="https://onelinkprofile.s3.ap-south-1.amazonaws.com/assets/nelink-logo.png" alt="NELINK Logo" width="200px" height="200px"></p>
 
+<h1 align="center">NELINK - All Your Links in One Place</h1>
 
-<a href="https://onelink-ej3n.onrender.com/" style="text-decoration:none;font-size=20px;">OneLink </a> is your go-to solution for centralizing all your online links in one place. Our platform is free and easy to use, allowing you to create a personalized link page that includes links to your social media profiles, personal websites, blogs, portfolios, and more.
+<p align="center">
+  <a href="https://onelink-ej3n.onrender.com/">Live Demo</a> •
+  <a href="#features">Features</a> •
+  <a href="#setup">Setup</a> •
+  <a href="#contributing">Contributing</a>
+</p>
 
-Whether you're an influencer, a business owner, or simply someone who wants to organize their online presence, OneLink makes it effortless to simplify the journey for your audience.
+NELINK is a modern, feature-rich link-in-bio platform that helps you centralize all your online presence in one beautiful, customizable page. Perfect for content creators, influencers, businesses, and anyone who wants to share multiple links with their audience.
 
-Sample profile: [Yuvraj Singh](https://onelink-ej3n.onrender.com/profile/yuvraj0157)
+**Sample Profile:** [Yuvraj Singh](https://onelink-ej3n.onrender.com/profile/yuvraj0157)
 
-## Tools:
-- Node.js
-- Express.js
-- MongoDB (Mongoose)
-- HTML, CSS, JS
-- EJS
-- AWS S3
+---
 
+## ✨ Features
 
-## Features:
-- 🌐 Centralize all your online links in one place
-- 🆓 Free and easy-to-use platform
-- 🔗 Create a personalized profile with profile picture, title, bio, and themes.
-- 🔒 Secure token-based login and registration system
-- 📧 Email verification and password reset
-- 📈 Analytics to track the number of clicks on your profile
+### 🎨 **Customization & Themes**
+- **18+ Beautiful Themes**: Choose from a variety of stunning themes including Dark, Purple, Snow, Meteor, Wave, and more
+- **Live Preview**: See changes in real-time before publishing
+- **Custom Profile**: Add profile picture, title, bio, and social links
+- **Theme Preview Modal**: Preview all themes before applying
 
+### 🔗 **Link Management**
+- **Unlimited Links**: Add as many links as you need
+- **Drag & Drop Reordering**: Easily reorganize your links
+- **Bulk Actions**: Enable/disable or delete multiple links at once
+- **Link Previews**: Automatic favicon fetching for better visual appeal
+- **Smart Empty States**: Helpful guidance when you're just getting started
 
-## Setup:
-1. Clone the repository: `git clone https://github.com/Yuvraj0157/one-link.git`
-2. Navigate to the project directory: `cd one-link`
-3. Install dependencies: `npm install`
-5. Create a `.env` file in the root directory and add the following environment variables:
-```
-MONGODB_URI = 
-JWT_LOGIN_SECRET = 
-JWT_RESET_PASSWORD = 
-JWT_VERIFICATION_SECRET =
-SESSION_SECRET = 
-EMAIL = 
-PASSWORD = 
-S3_ACCESS_KEY = 
-S3_SECRET_ACCESS_KEY = 
-S3_BUCKET_NAME = 
-S3_BUCKET_REGION =
-```
+### 📊 **Advanced Analytics**
+- **Real-time Click Tracking**: Monitor every click on your links
+- **Device Detection**: See if visitors use Mobile, Desktop, or Tablet
+- **Geographic Insights**: Track visitor countries with flag indicators
+- **Referrer Tracking**: Know where your traffic comes from (Social media, Direct, etc.)
+- **Performance Metrics**: 
+  - Click-Through Rate (CTR) calculations
+  - Performance badges (Excellent/Popular/Growing/Good/New)
+  - Average clicks per day
+  - Peak activity hours
+  - Most active days
+- **Visual Charts**: 30-day trend visualization with Chart.js
+- **Date Range Picker**: Filter analytics by custom date ranges
+- **CSV Export**: Download your analytics data
+- **90-Day Data Retention**: Automatic cleanup of old data
 
-4. Start the development server: `npm start`
+### 🏆 **Gamification**
+- **Achievement System**: Unlock badges for milestones
+  - First Link, 10 Links, 50 Links, 100 Links
+  - 100 Clicks, 1K Clicks, 10K Clicks, 100K Clicks
+  - Profile Customizer, Theme Explorer, Social Butterfly
+  - Week Streak, Month Streak, Year Streak
+- **Profile Badge Generator**: Create custom badges for your profile
+- **Quick Stats Dashboard**: See your progress at a glance
 
+### 🔒 **Security & Reliability**
+- **Enterprise-Level Security**: 
+  - Helmet.js for HTTP header protection
+  - Rate limiting to prevent abuse
+  - NoSQL injection prevention
+  - CSRF protection on all forms
+- **Secure Authentication**: Token-based login with JWT
+- **Email Verification**: Confirm your email address
+- **Password Reset**: Easy and secure password recovery
+- **Error Handling**: Graceful error pages (403, 404, 500)
+- **Request Logging**: Comprehensive logging for debugging
 
-## Contributing:
-We welcome contributions from the community. To contribute to OneLink, please follow these steps:
-1. Fork the repository
-2. Create a new branch: `git checkout -b feature/your-feature-name`
-3. Make your changes and commit them: `git commit -m "Add your commit message"`
-4. Push your changes to your forked repository: `git push origin feature/your-feature-name`
-5. Open a pull request
+### 🎯 **User Experience**
+- **Responsive Design**: Works perfectly on all devices
+- **Skeleton Loading**: Smooth loading states
+- **Offline Indicator**: Know when you're offline
+- **Profile Sharing**: Easy share buttons for social media
+- **Modern Notifications**: Beautiful toast notifications
+- **Professional Email Templates**: Branded emails for verification and password reset
 
-## License:
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
+---
+
+## 🛠️ Tech Stack
+
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB with Mongoose
+- **Frontend**: HTML, CSS, JavaScript, EJS
+- **Storage**: AWS S3 for image hosting
+- **Charts**: Chart.js for analytics visualization
+- **UI Framework**: Bootstrap 5
+- **Geolocation**: GeoIP-lite for country detection
+- **Security**: Helmet.js, express-rate-limit, express-validator
+
+---
+
+## 🚀 Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Yuvraj0157/one-link.git
+   cd one-link
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+   
+   Create a `.env` file in the root directory:
+   ```env
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_LOGIN_SECRET=your_jwt_secret
+   JWT_RESET_PASSWORD=your_reset_password_secret
+   JWT_VERIFICATION_SECRET=your_verification_secret
+   SESSION_SECRET=your_session_secret
+   EMAIL=your_email@gmail.com
+   PASSWORD=your_email_app_password
+   S3_ACCESS_KEY=your_aws_access_key
+   S3_SECRET_ACCESS_KEY=your_aws_secret_key
+   S3_BUCKET_NAME=your_bucket_name
+   S3_BUCKET_REGION=your_bucket_region
+   ```
+
+4. **Start the server**
+   ```bash
+   npm start
+   ```
+
+5. **Open your browser**
+   
+   Navigate to `http://localhost:3000`
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how you can help:
+
+1. **Fork the repository**
+2. **Create a feature branch**
+   ```bash
+   git checkout -b feature/amazing-feature
+   ```
+3. **Commit your changes**
+   ```bash
+   git commit -m "add amazing feature"
+   ```
+4. **Push to your branch**
+   ```bash
+   git push origin feature/amazing-feature
+   ```
+5. **Open a Pull Request**
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+---
+
+## 🌟 Show Your Support
+
+If you find NELINK helpful, please give it a ⭐️ on GitHub!
+
+---
+
+<p align="center">Made with ❤️ by <a href="https://github.com/Yuvraj0157">Yuvraj Singh</a></p>
