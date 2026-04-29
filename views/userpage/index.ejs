@@ -18,6 +18,43 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        
+        /* Share Buttons */
+        .share-buttons {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+        
+        .share-btn i {
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -51,13 +88,10 @@
     <div class="container">
         <div class="userlogo">
             <% if(profile.photo) { %>
-                <img src="<%=profile.photo%>" alt="Profile Pic" srcset="">
+                <img src="<%=profile.photo%>" alt="Profile Pic" class="profile-photo" id="profilePhoto">
+                <img src="https://onelinkprofile.s3.ap-south-1.amazonaws.com/assets/nelink-logo.png" alt="NELINK" class="profileIcon fallback-icon" width="90" height="90" style="display: none; border-radius: 50%;">
             <% } else { %>
-                <svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" fill="teal" class="bi bi-person-circle profileIcon" viewBox="0 0 16 16">
-                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                    <path fill-rule="evenodd"
-                    d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
-                </svg>
+                <img src="https://onelinkprofile.s3.ap-south-1.amazonaws.com/assets/nelink-logo.png" alt="NELINK" class="profileIcon" width="90" height="90" style="border-radius: 50%;">
             <% } %>
         </div>
         <div class="username">
@@ -68,6 +102,26 @@
             <% } %>
         </div>
         <div class="userbio" style="font-family:'Times New Roman', Times, serif; font-weight: bold;"> <%= profile.bio %> </div>
+        
+        <!-- Share Profile Buttons -->
+        <div class="share-buttons" style="margin: 20px 0; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <button class="share-btn" id="copyLinkBtn" title="Copy Link">
+                <i class="fas fa-link"></i>
+            </button>
+            <a class="share-btn" id="shareTwitter" target="_blank" title="Share on Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a class="share-btn" id="shareFacebook" target="_blank" title="Share on Facebook">
+                <i class="fab fa-facebook"></i>
+            </a>
+            <a class="share-btn" id="shareLinkedIn" target="_blank" title="Share on LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a class="share-btn" id="shareWhatsApp" target="_blank" title="Share on WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        </div>
+        
         <div class="userbtn">
             <% for(var i=0; i < profile.links.length; i++) { %>
                 <a class="btn" target="_blank" href="/track/link/<%= username %>/<%= profile.links[i]._id %>">
@@ -92,6 +146,46 @@
     </div>
 
 <script>
+    // Handle profile photo load errors
+    const profilePhoto = document.getElementById('profilePhoto');
+    if (profilePhoto) {
+        profilePhoto.addEventListener('error', function() {
+            this.style.display = 'none';
+            const fallbackIcon = document.querySelector('.fallback-icon');
+            if (fallbackIcon) {
+                fallbackIcon.style.display = 'block';
+            }
+        });
+    }
+    
+    // Share functionality
+    const profileUrl = window.location.href;
+    const profileTitle = '<%= profile.title || username %>';
+    const shareText = `Check out ${profileTitle}'s OneLink profile!`;
+    
+    // Copy link button
+    document.getElementById('copyLinkBtn').addEventListener('click', function() {
+        navigator.clipboard.writeText(profileUrl).then(function() {
+            const btn = document.getElementById('copyLinkBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.style.background = '#28a745';
+            setTimeout(function() {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+            }, 2000);
+        }).catch(function(err) {
+            alert('Failed to copy link');
+        });
+    });
+    
+    // Social share links
+    document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(profileUrl)}`;
+    document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`;
+    document.getElementById('shareLinkedIn').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(profileUrl)}`;
+    document.getElementById('shareWhatsApp').href = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + profileUrl)}`;
+
+    // Social icon hover animations
     $('.hover-animations').hover(function() {
         $(this).addClass('fa-bounce');
         $(this).css('--fa-bounce-height', '-7px');
