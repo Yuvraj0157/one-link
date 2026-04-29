@@ -8,6 +8,8 @@ const authLimiter = rateLimit({
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     skipSuccessfulRequests: false, // Count successful requests
+    // Validate proxy configuration
+    validate: {trustProxy: false}
 });
 
 // Rate limiter for general routes
@@ -17,6 +19,8 @@ const generalLimiter = rateLimit({
     message: 'Too many requests from this IP, please try again later',
     standardHeaders: true,
     legacyHeaders: false,
+    // Validate proxy configuration
+    validate: {trustProxy: false},
     skip: (req) => {
         // Skip rate limiting for static assets
         return req.path.startsWith('/public/') ||
@@ -38,6 +42,8 @@ const emailLimiter = rateLimit({
     message: 'Too many email requests, please try again after an hour',
     standardHeaders: true,
     legacyHeaders: false,
+    // Validate proxy configuration
+    validate: {trustProxy: false}
 });
 
 // Rate limiter for password reset
@@ -47,6 +53,8 @@ const passwordResetLimiter = rateLimit({
     message: 'Too many password reset attempts, please try again after an hour',
     standardHeaders: true,
     legacyHeaders: false,
+    // Validate proxy configuration
+    validate: {trustProxy: false}
 });
 
 module.exports = {

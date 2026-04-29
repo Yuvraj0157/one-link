@@ -26,6 +26,18 @@ const asyncHandler = (fn) => {
  * Not Found Error Handler
  */
 const notFoundHandler = (req, res, next) => {
+    // Silently ignore Chrome DevTools and other browser well-known requests
+    const ignoredPaths = [
+        '/.well-known/appspecific/com.chrome.devtools.json',
+        '/favicon.ico',
+        '/robots.txt',
+        '/sitemap.xml'
+    ];
+    
+    if (ignoredPaths.some(path => req.originalUrl.startsWith(path))) {
+        return res.status(404).end();
+    }
+    
     const error = new AppError(`Route not found: ${req.originalUrl}`, 404);
     error.correlationId = req.correlationId;
     next(error);
