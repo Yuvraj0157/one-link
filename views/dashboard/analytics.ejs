@@ -619,7 +619,12 @@
                                             </td>
                                             <td>
                                                 <% if(click.countryCode && click.countryCode !== 'XX') { %>
-                                                    <span class="country-flag" data-country-code="<%= click.countryCode %>"></span>
+                                                    <%
+                                                    // Convert country code to flag emoji
+                                                    const code = click.countryCode.toUpperCase();
+                                                    const flag = String.fromCodePoint(...code.split('').map(c => 127397 + c.charCodeAt(0)));
+                                                    %>
+                                                    <span style="font-size: 20px; margin-right: 5px;"><%= flag %></span>
                                                     <small><%= click.country %></small>
                                                 <% } else { %>
                                                     <span class="badge bg-secondary">Unknown</span>
@@ -1173,35 +1178,8 @@ function fallbackCopy(input, btn) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
 <script>
-// Function to convert country code to flag emoji
-function countryCodeToFlag(countryCode) {
-    if (!countryCode || countryCode === 'XX' || countryCode.length !== 2) {
-        return '';
-    }
-    
-    const codePoints = countryCode
-        .toUpperCase()
-        .split('')
-        .map(char => 127397 + char.charCodeAt());
-    
-    return String.fromCodePoint(...codePoints);
-}
-
-// Initialize country flags
+// Initialize Bootstrap tooltips
 document.addEventListener('DOMContentLoaded', function() {
-    // Convert country codes to flags
-    const flagElements = document.querySelectorAll('.country-flag');
-    flagElements.forEach(function(el) {
-        const countryCode = el.getAttribute('data-country-code');
-        const flag = countryCodeToFlag(countryCode);
-        if (flag) {
-            el.textContent = flag;
-            el.style.fontSize = '18px';
-            el.style.marginRight = '5px';
-        }
-    });
-    
-    // Initialize Bootstrap tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
