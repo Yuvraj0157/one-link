@@ -1,306 +1,790 @@
-<!-- Header -->
- <%-include('../dashboard/include/_header')%>
-<!-- /Header -->
+<%-include('../dashboard/include/_header')%>
 
-<!-- Main Site -->
-<main id="site-main">
-    <div class="container">
-        <div class="box-nav d-flex justify-between">
-            <div class="filter">
-                <a href="/dashboard"><i class="fas fa-angle-double-left"></i> Dashboard</a>
+<div class="container">
+    <!-- Back Navigation & Preview Button -->
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <a href="/dashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+        <a href="/profile/<%= user.username %>" target="_blank" class="btn btn-success">
+            <i class="fas fa-eye me-2"></i>Preview Profile
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-palette me-2"></i>Appearance Settings</h2>
+        <p>Customize your profile's look and feel</p>
+    </div>
+
+        <!-- Error Message -->
+        <% if (messages.error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i><%= messages.error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
-        <div class="form-title text-center">
-            <h2 class="text-dark" style="text-align: center;">Appearance</h2>
-        </div>
+        <% } %>
 
-        <form action="/appearance" class="update_user" method="POST" id="appearance_form" enctype="multipart/form-data">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <div class="new_user">
-                <div class="avatar-wrapper">
-                    <% if(data.photo){ %>
-                        <img id="profilePhoto" class="profile-pic" src="<%= data.photo %>" data-photo="<%= data.photo %>"
-                            style="object-fit: cover;" />
-                    <% } else { %>
-                        <img id="profilePhoto" class="profile-pic" src="" style="object-fit: cover;" />
-                    <% } %>
-                    <div class="upload-button">
-                        <% if(data.photo) {%>
-                            <i id="uploadIcon" class="fa-solid fa-upload" aria-hidden="true" style="color:#1b19bb;"></i>
-                            <i id="deleteIcon" class="fa-solid fa-trash" aria-hidden="true"
-                                style="color: rgb(242, 9, 9);"></i>
-                            <% } else {%>
-                                <i id="uploadIcon" class="fa-solid fa-upload" aria-hidden="true"
-                                    style="color:#1b19bb; font-size: 50px; bottom: 30px; right:27px"></i>
-                            <% } %>
-                    </div>
-                    <input id="profilepic" class="file-upload" name="file" type="file" accept="image/*" />
-                </div>
+        <!-- Appearance Form - Single Card -->
+        <form action="/appearance" method="POST" id="appearance_form" enctype="multipart/form-data">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-user-edit me-2"></i>Profile Settings
+                    </h5>
 
-                <% if (messages.error) { %>
-                    <div style="color: tomato; text-align: center; ">
-                        <br>
-                        <%= messages.error %>
-                    </div>
-                <% } %>
-                <div class="form-group">
-                    <label for="profileTitle" class="text-light">Profile Title</label>
-                    <% if(data.title){ %>
-                        <input id="profileTitle" type="text" name="title" value="<%= data.title %>"
-                            placeholder="Social/Business/Creator/..">
-                    <% } else { %>
-                        <input id="profileTitle" type="text" name="title" value=""
-                            placeholder="Social/Business/Creator/..">
-                    <% } %>
-                </div>
-                <div class="form-group">
-                    <label for="bio" class="text-light">Bio</label><br>
-                    <% if(data.bio){ %>
-                        <textarea id="profileBio" name="bio"
-                            placeholder="Enter a bio description to appear on your profile"><%= data.bio %></textarea>
-                    <% } else { %>
-                        <textarea id="profileBio" name="bio"
-                            placeholder="Enter a bio description to appear on your profile"></textarea>
-                    <% } %>
-                </div>
+                    <div class="row">
+                        <!-- Left Column: Profile Photo -->
+                        <div class="col-lg-4 col-md-5 mb-4 mb-md-0">
+                            <div class="text-center">
+                                <h6 class="fw-semibold mb-3">
+                                    <i class="fas fa-image me-2 text-primary"></i>Profile Photo
+                                </h6>
+                                
+                                <!-- Profile Photo Display -->
+                                <div class="position-relative d-inline-block mb-3">
+                                    <% if(data.photo){ %>
+                                        <img id="profilePhoto" src="<%= data.photo %>" data-photo="<%= data.photo %>"
+                                             class="rounded-circle border border-3 border-primary"
+                                             style="width: 150px; height: 150px; object-fit: cover;"
+                                             alt="Profile Photo" />
+                                    <% } else { %>
+                                        <div id="profilePhoto" class="rounded-circle border border-3 border-secondary bg-light d-flex align-items-center justify-content-center"
+                                             style="width: 150px; height: 150px;">
+                                            <i class="fas fa-user fa-4x text-secondary"></i>
+                                        </div>
+                                    <% } %>
+                                </div>
 
-                <div class="form-group">
-                    <label for="theme" class="text-light">Theme</label>
-                    <select name="theme" id="profileTheme">
-                        <option value="default" <%=data.theme==='default' ? 'selected' : '' %>>Default</option>
-                        <option value="dark" <%=data.theme==='dark' ? 'selected' : '' %>>Dark</option>
-                        <option value="wave" <%=data.theme==='wave' ? 'selected' : '' %>>Wave</option>
-                        <option value="purple" <%=data.theme==='purple' ? 'selected' : '' %>>Purple</option>
-                        <option value="hexagonal" <%=data.theme==='hexagonal' ? 'selected' : '' %>>Hexagonal</option>
-                        <option value="bluedot" <%=data.theme==='bluedot' ? 'selected' : '' %>>BlueDot</option>
-                        <option value="purpledot" <%=data.theme==='purpledot' ? 'selected' : '' %>>PurpleDot</option>
-                        <option value="shapes" <%=data.theme==='shapes' ? 'selected' : '' %>>Shapes</option>
-                        <option value="snow" <%=data.theme==='snow' ? 'selected' : '' %>>Snow</option>
-                        <option value="moon" <%=data.theme==='moon' ? 'selected' : '' %>>Moon</option>
-                        <option value="soundwave" <%=data.theme==='soundwave' ? 'selected' : '' %>>SoundWave</option>
-                        <option value="abstractpaper" <%=data.theme==='abstractpaper' ? 'selected' : '' %>>AbstractPaper</option>
-                        <option value="stockmarket" <%=data.theme==='stockmarket' ? 'selected' : '' %>>StockMarket</option>
-                        <option value="worldmapindia" <%=data.theme==='worldmapindia' ? 'selected' : '' %>>WorldMap-India</option>
-                        <option value="sprinkle" <%=data.theme==='sprinkle' ? 'selected' : '' %>>Sprinkle</option>
-                        <option value="meteor" <%=data.theme==='meteor' ? 'selected' : '' %>>Meteor</option>
-                        <option value="masscircles" <%=data.theme==='masscircles' ? 'selected' : '' %>>MassCircles</option>
-                        <option value="animatedshape" <%=data.theme==='animatedshape' ? 'selected' : '' %>>AnimatedShape</option>
-                        <option value="meteor" <%=data.theme==='meteor' ? 'selected' : '' %>>Meteor</option>
-                    </select>
-                    <a class="modal-open btn">Change theme</a>
-                </div>
+                                <!-- Hidden File Input -->
+                                <input id="profilepic" name="file" type="file" accept="image/*" style="display: none;" />
 
-                <!-- Theme Select Dialog Box -->
-                <div class="modal hidden">
-                    <div class="modal-rect">
-                        <div class="modal-close">
-                            <a>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="#000000" class="close-icon">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </a>
-                        </div>
-                        <div class="modal-title">
-                            <h2>Choose Theme</h2>
-                        </div>
-                        <div class="theme-parent">
-                            <div class="theme-row">
-                                <div class="theme-card default">
-                                    <div class="theme-img" style="background-color: #008080;">IMG</div>
-                                    <p class="theme-name">Default</p>
+                                <!-- Upload/Delete Buttons -->
+                                <div class="d-grid gap-2">
+                                    <button type="button" id="uploadBtn" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-upload me-2"></i>Choose Photo
+                                    </button>
+                                    <% if(data.photo) {%>
+                                        <button type="button" id="deleteBtn" class="btn btn-outline-danger btn-sm">
+                                            <i class="fas fa-trash me-2"></i>Remove Photo
+                                        </button>
+                                    <% } %>
                                 </div>
-                                <div class="theme-card dark">
-                                    <div class="theme-img" style="background-color: #000000; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Dark</p>
-                                </div>
-                                <div class="theme-card wave">
-                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Wave</p>
-                                </div>
-                                <div class="theme-card purple">
-                                    <div class="theme-img" style="background-color: #2511B6; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Purple</p>
-                                </div>
-                                <div class="theme-card hexagonal">
-                                    <div class="theme-img" style="background-color: #074D96; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Hexagonal</p>
-                                </div>
-                            </div>
-                            <div class="theme-row purp">
-                                <div class="theme-card bluedot">
-                                    <div class="theme-img" style="background-color: #9CA3E6;">IMG</div>
-                                    <p class="theme-name">BlueDot</p>
-                                </div>
-                                <div class="theme-card purpledot">
-                                    <div class="theme-img" style="background-color: #8782E4;">IMG</div>
-                                    <p class="theme-name">PurpleDot</p>
-                                </div>
-                                <div class="theme-card shapes">
-                                    <div class="theme-img" style="background-color: #3D3BC1; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Shapes</p>
-                                </div>
-                                <div class="theme-card snow">
-                                    <div class="theme-img" style="background-color: #24588E; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Snow</p>
-                                </div>
-                                <div class="theme-card moon">
-                                    <div class="theme-img" style="background-color: #32325D; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Moon</p>
-                                </div>
-                            </div>
-                            <div class="theme-row">
-                                <div class="theme-card soundwave">
-                                    <div class="theme-img" style="background-color: #043D83; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Soundwave</p>
-                                </div>
-                                <div class="theme-card abstractpaper">
-                                    <div class="theme-img" style="background-color: #2E409E; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Abstractpaper</p>
-                                </div>
-                                <div class="theme-card stockmarket">
-                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">StockMarket</p>
-                                </div>
-                                <div class="theme-card worldmapindia">
-                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">WorldMap-India</p>
-                                </div>
-                                <div class="theme-card sprinkle">
-                                    <div class="theme-img" style="background-color: #0E2A47; color: white;">IMG
-                                    </div>
-                                    <p class="theme-name">Sprinkle</p>
-                                </div>
-                            </div>
-                            <div class="theme-row">
-                                <div class="theme-card masscircles">
-                                    <div class="theme-img" style="background-color: #0E2A47 ; color: #9BA3E6;">
-                                        IMG</div>
-                                    <p class="theme-name">MassCircles</p>
-                                </div>
-                                <div class="theme-card animatedshape">
-                                    <div class="theme-img" style="background-color: #0E2A47; color: #9AA2E5;">
-                                        IMG</div>
-                                    <p class="theme-name">AnimatedShape</p>
-                                </div>
-                                <div class="theme-card meteor">
-                                    <div class="theme-img" style="background-color: #212529; color: #9AA2E5;">
-                                        IMG</div>
-                                    <p class="theme-name">Meteor</p>
+
+                                <div class="text-muted small mt-3">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Auto-resized to 800x800px
                                 </div>
                             </div>
                         </div>
-                        <a class="theme-submit">Done</a>
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn text-dark update">Save</button>
+                        <!-- Right Column: Profile Details -->
+                        <div class="col-lg-8 col-md-7">
+                            <!-- Profile Title -->
+                            <div class="mb-3">
+                                <label for="profileTitle" class="form-label fw-semibold">
+                                    <i class="fas fa-heading me-2 text-primary"></i>Profile Title
+                                </label>
+                                <input
+                                    id="profileTitle"
+                                    type="text"
+                                    name="title"
+                                    class="form-control"
+                                    value="<%= data.title || '' %>"
+                                    placeholder="e.g., Social Media Manager, Business Owner"
+                                    maxlength="100"
+                                />
+                                <div class="form-text">
+                                    A catchy title that describes you or your brand
+                                </div>
+                            </div>
+
+                            <!-- Bio -->
+                            <div class="mb-3">
+                                <label for="profileBio" class="form-label fw-semibold">
+                                    <i class="fas fa-align-left me-2 text-primary"></i>Bio
+                                </label>
+                                <textarea
+                                    id="profileBio"
+                                    name="bio"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Tell your visitors about yourself..."
+                                    maxlength="500"
+                                ><%= data.bio || '' %></textarea>
+                                <div class="form-text">
+                                    Brief description for your profile (max 500 characters)
+                                </div>
+                            </div>
+
+                            <!-- Theme Selection -->
+                            <div class="mb-4">
+                                <label for="profileTheme" class="form-label fw-semibold">
+                                    <i class="fas fa-palette me-2 text-primary"></i>Theme
+                                </label>
+                                <div class="row g-2">
+                                    <div class="col-md-8">
+                                        <select name="theme" id="profileTheme" class="form-select">
+                                            <option value="default" <%=data.theme==='default' ? 'selected' : '' %>>Default</option>
+                                            <option value="dark" <%=data.theme==='dark' ? 'selected' : '' %>>Dark</option>
+                                            <option value="wave" <%=data.theme==='wave' ? 'selected' : '' %>>Wave</option>
+                                            <option value="purple" <%=data.theme==='purple' ? 'selected' : '' %>>Purple</option>
+                                            <option value="hexagonal" <%=data.theme==='hexagonal' ? 'selected' : '' %>>Hexagonal</option>
+                                            <option value="bluedot" <%=data.theme==='bluedot' ? 'selected' : '' %>>BlueDot</option>
+                                            <option value="purpledot" <%=data.theme==='purpledot' ? 'selected' : '' %>>PurpleDot</option>
+                                            <option value="shapes" <%=data.theme==='shapes' ? 'selected' : '' %>>Shapes</option>
+                                            <option value="snow" <%=data.theme==='snow' ? 'selected' : '' %>>Snow</option>
+                                            <option value="moon" <%=data.theme==='moon' ? 'selected' : '' %>>Moon</option>
+                                            <option value="soundwave" <%=data.theme==='soundwave' ? 'selected' : '' %>>SoundWave</option>
+                                            <option value="abstractpaper" <%=data.theme==='abstractpaper' ? 'selected' : '' %>>AbstractPaper</option>
+                                            <option value="stockmarket" <%=data.theme==='stockmarket' ? 'selected' : '' %>>StockMarket</option>
+                                            <option value="worldmapindia" <%=data.theme==='worldmapindia' ? 'selected' : '' %>>WorldMap-India</option>
+                                            <option value="sprinkle" <%=data.theme==='sprinkle' ? 'selected' : '' %>>Sprinkle</option>
+                                            <option value="meteor" <%=data.theme==='meteor' ? 'selected' : '' %>>Meteor</option>
+                                            <option value="masscircles" <%=data.theme==='masscircles' ? 'selected' : '' %>>MassCircles</option>
+                                            <option value="animatedshape" <%=data.theme==='animatedshape' ? 'selected' : '' %>>AnimatedShape</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="button" class="btn btn-outline-primary w-100 modal-open">
+                                            <i class="fas fa-eye me-2"></i>Preview
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>Save All Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
+        
+        <!-- Profile Badge Generator Card -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body">
+                <h5 class="card-title mb-4">
+                    <i class="fas fa-award me-2"></i>Profile Badge Generator
+                </h5>
+                <p class="text-muted mb-3">
+                    Generate embeddable badges to showcase your OneLink profile on websites, GitHub, or social media.
+                </p>
+                
+                <!-- Badge Style Selection -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-palette me-2 text-primary"></i>Badge Style
+                    </label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="badgeStyle" id="badgeFlat" value="flat" checked>
+                        <label class="btn btn-outline-primary" for="badgeFlat">Flat</label>
+                        
+                        <input type="radio" class="btn-check" name="badgeStyle" id="badgeGradient" value="gradient">
+                        <label class="btn btn-outline-primary" for="badgeGradient">Gradient</label>
+                        
+                        <input type="radio" class="btn-check" name="badgeStyle" id="badgeMinimal" value="minimal">
+                        <label class="btn btn-outline-primary" for="badgeMinimal">Minimal</label>
+                    </div>
+                </div>
+                
+                <!-- Badge Preview -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Preview</label>
+                    <div class="p-4 bg-light rounded text-center" id="badgePreview">
+                        <img id="badgeImage" src="" alt="Profile Badge" style="max-width: 100%; height: auto;">
+                    </div>
+                </div>
+                
+                <!-- Badge Code Sections -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fab fa-markdown me-2 text-primary"></i>Markdown Code
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control font-monospace small" id="markdownCode" readonly>
+                            <button class="btn btn-outline-secondary copy-badge-btn" type="button" data-type="markdown">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="fab fa-html5 me-2 text-primary"></i>HTML Code
+                        </label>
+                        <div class="input-group">
+                            <input type="text" class="form-control font-monospace small" id="htmlCode" readonly>
+                            <button class="btn btn-outline-secondary copy-badge-btn" type="button" data-type="html">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Tip:</strong> Use these badges on your GitHub README, personal website, or social media profiles to drive traffic to your OneLink page!
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 <!-- /Main Site -->
 
-<script>
-    $(document).ready(function () {
-        var readURL = function (input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
+<!-- Theme Selection Modal -->
+<div class="modal fade" id="themeModal" tabindex="-1" aria-labelledby="themeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="modal-title text-white" id="themeModalLabel">
+                    <i class="fas fa-palette me-2"></i>Choose Your Theme
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3">
+                    <!-- Default Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="default">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background: #f8f9fa;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Default</h6>
+                            </div>
+                        </div>
+                    </div>
 
-                reader.onload = function (e) {
-                    $('#profilePhoto').attr('src', e.target.result);
+                    <!-- Dark Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="dark">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: black;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Dark</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wave Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="wave">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1440' height='560' preserveAspectRatio='none' viewBox='0 0 1440 560'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1000%26quot%3b)' fill='none'%3e%3crect width='1440' height='560' x='0' y='0' fill='%230e2a47'%3e%3c/rect%3e%3cpath d='M0%2c445.117C81.296%2c429.018%2c151.485%2c388.898%2c222.845%2c346.754C297.061%2c302.924%2c381.485%2c268.489%2c425.028%2c194.104C470.402%2c116.591%2c484.583%2c20.796%2c464.96%2c-66.851C445.971%2c-151.667%2c374.82%2c-209.813%2c319.574%2c-276.912C262.758%2c-345.919%2c223.155%2c-442.852%2c136.697%2c-465.548C50.374%2c-488.209%2c-30.967%2c-421.581%2c-114.789%2c-390.937C-192.564%2c-362.503%2c-284.131%2c-355.759%2c-337.291%2c-292.265C-390.233%2c-229.031%2c-381.476%2c-138.155%2c-394.596%2c-56.734C-407.968%2c26.251%2c-432.315%2c107.251%2c-414.917%2c189.486C-394.639%2c285.333%2c-371.246%2c396.494%2c-287.837%2c447.883C-204.457%2c499.253%2c-96.068%2c464.141%2c0%2c445.117' fill='%230b2239'%3e%3c/path%3e%3cpath d='M1440 1151.13C1549.559 1144.388 1638.334 1071.513 1732.739 1015.51 1830.846 957.3109999999999 1959.387 922.519 2003.03 817.127 2046.591 711.932 1978.71 597.05 1951.84 486.408 1927.653 386.813 1905.896 289.768 1853.56 201.64800000000002 1792.285 98.476 1739.286-33.37800000000004 1623.792-65.93899999999996 1508.261-98.50999999999999 1400.562 0.6150000000000091 1287.9569999999999 42.188999999999965 1184.1680000000001 80.50799999999998 1065.433 89.27600000000001 988.37 168.66000000000003 909.623 249.779 888.125 366.63300000000004 865.476 477.396 841.578 594.265 804.845 718.932 853.583 827.808 902.413 936.887 1018.498 995.318 1123.155 1053.021 1221.978 1107.507 1327.365 1158.0610000000001 1440 1151.13' fill='%23113255'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1000'%3e%3crect width='1440' height='560' fill='white'%3e%3c/rect%3e%3c/mask%3e%3c/defs%3e%3c/svg%3e"); background-size: cover; background-position: center;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Wave</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Purple Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="purple">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background: -webkit-linear-gradient(360deg, rgba(213, 15, 61, 1.6), rgba(13, 17, 198, 1.69) 100%);"></div>
+                                <h6 class="card-title mb-0 fw-bold">Purple</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hexagonal Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="hexagonal">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1440' height='560' preserveAspectRatio='none' viewBox='0 0 1440 560'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1000%26quot%3b)' fill='none'%3e%3crect width='1440' height='560' x='0' y='0' fill='%230e2a47'%3e%3c/rect%3e%3cpath d='M33.27 158.3L98.22 195.8L98.22 270.8L33.27 308.3L-31.68 270.8L-31.68 195.8zM163.18 -66.7L228.13 -29.2L228.13 45.8L163.18 83.3L98.22 45.8L98.22 -29.2z' stroke='%2303305d' stroke-width='2'%3e%3c/path%3e%3c/g%3e%3c/svg%3e"); background-size: cover; background-position: center;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Hexagonal</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BlueDot Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="bluedot">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #9CA3E6;"></div>
+                                <h6 class="card-title mb-0 fw-bold">BlueDot</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PurpleDot Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="purpledot">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #8782E4;"></div>
+                                <h6 class="card-title mb-0 fw-bold">PurpleDot</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shapes Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="shapes">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #3D3BC1;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Shapes</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Snow Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="snow">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1420' height='556' preserveAspectRatio='none' viewBox='0 0 1420 556'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1072%26quot%3b)' fill='none'%3e%3crect width='1420' height='556' x='0' y='0' fill='%230e2a47'%3e%3c/rect%3e%3ccircle r='6.88' cx='123.69999999999999' cy='465.77' filter='url(%23SvgjsFilter1073)' fill='rgba(51%2c 121%2c 194%2c 0.58)'%3e%3c/circle%3e%3c/g%3e%3c/svg%3e"); background-size: cover; background-position: center;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Snow</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Moon Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="moon">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1445' height='581' preserveAspectRatio='none' viewBox='0 0 1445 581'%3e%3cg clip-path='url(%26quot%3b%23SvgjsClipPath1232%26quot%3b)' fill='none'%3e%3crect width='1445' height='581' x='0' y='0' fill='%2332325d'%3e%3c/rect%3e%3ccircle r='50.25' cx='856.81' cy='417.04' fill='%2343468b'%3e%3c/circle%3e%3c/g%3e%3c/svg%3e"); background-size: cover; background-position: center;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Moon</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soundwave Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="soundwave">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #043D83;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Soundwave</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AbstractPaper Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="abstractpaper">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #2E409E;"></div>
+                                <h6 class="card-title mb-0 fw-bold">AbstractPaper</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- StockMarket Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="stockmarket">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #0E2A47;"></div>
+                                <h6 class="card-title mb-0 fw-bold">StockMarket</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WorldMap-India Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="worldmapindia">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #0E2A47;"></div>
+                                <h6 class="card-title mb-0 fw-bold">WorldMap-India</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sprinkle Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="sprinkle">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #0E2A47;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Sprinkle</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MassCircles Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="masscircles">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #0E2A47;"></div>
+                                <h6 class="card-title mb-0 fw-bold">MassCircles</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AnimatedShape Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="animatedshape">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-color: #0E2A47;"></div>
+                                <h6 class="card-title mb-0 fw-bold">AnimatedShape</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meteor Theme -->
+                    <div class="col-md-4 col-sm-6">
+                        <div class="theme-card card h-100 border-2 cursor-pointer" data-theme="meteor">
+                            <div class="card-body text-center p-2">
+                                <div class="theme-preview-container mb-2 rounded overflow-hidden border" style="height: 150px; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1440' height='560' preserveAspectRatio='none' viewBox='0 0 1440 560'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1000%26quot%3b)' fill='none'%3e%3crect width='1440' height='560' x='0' y='0' fill='%230e2a47'%3e%3c/rect%3e%3cpath d='M1330 192L1329 -110' stroke-width='10' stroke='url(%23SvgjsLinearGradient1001)' stroke-linecap='round' class='Down'%3e%3c/path%3e%3c/g%3e%3c/svg%3e"); background-size: cover; background-position: center;"></div>
+                                <h6 class="card-title mb-0 fw-bold">Meteor</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-success" id="previewTheme">
+                    <i class="fas fa-eye me-2"></i>Live Preview
+                </button>
+                <button type="button" class="btn btn-primary" id="confirmTheme">
+                    <i class="fas fa-check me-2"></i>Apply Theme
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="successMessage">Profile photo deleted successfully!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Error Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span id="errorMessage">An error occurred!</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .theme-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        border-color: #667eea !important;
+    }
+    
+    .theme-card.selected {
+        border-color: #667eea !important;
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // File upload preview
+        const fileUpload = document.getElementById('profilepic');
+        const profilePhoto = document.getElementById('profilePhoto');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        
+        // Handle file selection with validation and resizing
+        if (fileUpload) {
+            fileUpload.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    
+                    // Check file type
+                    if (!file.type.startsWith('image/')) {
+                        showErrorToast('Please select an image file');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Check file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        showErrorToast('Image size must be less than 5MB');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            // Check dimensions
+                            if (img.width > 2000 || img.height > 2000) {
+                                // Resize image
+                                resizeImage(img, 2000, 2000, function(resizedDataUrl) {
+                                    updateProfilePhoto(resizedDataUrl);
+                                    // Update file input with resized image
+                                    dataURLtoFile(resizedDataUrl, file.name).then(function(resizedFile) {
+                                        const dataTransfer = new DataTransfer();
+                                        dataTransfer.items.add(resizedFile);
+                                        fileUpload.files = dataTransfer.files;
+                                    });
+                                });
+                            } else {
+                                updateProfilePhoto(e.target.result);
+                            }
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
                 }
-                reader.readAsDataURL(input.files[0]);
+            });
+        }
+        
+        // Function to update profile photo display
+        function updateProfilePhoto(dataUrl) {
+            if (profilePhoto.tagName === 'IMG') {
+                profilePhoto.src = dataUrl;
+            } else {
+                const newImg = document.createElement('img');
+                newImg.id = 'profilePhoto';
+                newImg.src = dataUrl;
+                newImg.className = 'rounded-circle border border-3 border-primary';
+                newImg.style.cssText = 'width: 150px; height: 150px; object-fit: cover;';
+                newImg.alt = 'Profile Photo';
+                profilePhoto.parentNode.replaceChild(newImg, profilePhoto);
             }
         }
-        // Handle file upload
-        $(".file-upload").on('change', function () {
-            readURL(this);
-        });
-        // Open file selector when upload icon is clicked
-        $("#uploadIcon").on('click', function () {
-            $("#profilepic").click();
-        });
-        // Handle delete action
-        $("#deleteIcon").on('click', function () {
-            const uri = $('#profilePhoto').data('photo');
-            const csrfToken = $('input[name="_csrf"]').val();
-            $.ajax({
-                url: '/appearance/delete',
-                type: 'POST',
-                data: {
-                    uri: uri,
-                    _csrf: csrfToken,
-                },
-                success: function (response) {
-                    if (response.status === 'success') {
-                        // Show success message
-                        swal("Success", response.message, "success")
-                        .then(() => {
-                            window.location.reload(); // Reload the window after success message is shown
-                        });
-                    } else {
-                        // Show error message
-                        swal("Error", response.message, "error")
-                        .then(() => {
-                            window.location.reload(); // Reload the window after error message is shown
-                        });
-                    }
-                },
-                error: function (error) {
-                    // Handle error response
-                    console.log("Error:", error);
+        
+        // Function to resize image
+        function resizeImage(img, maxWidth, maxHeight, callback) {
+            let width = img.width;
+            let height = img.height;
+            
+            // Calculate new dimensions
+            if (width > height) {
+                if (width > maxWidth) {
+                    height = height * (maxWidth / width);
+                    width = maxWidth;
                 }
+            } else {
+                if (height > maxHeight) {
+                    width = width * (maxHeight / height);
+                    height = maxHeight;
+                }
+            }
+            
+            // Create canvas and resize
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            callback(canvas.toDataURL('image/jpeg', 0.9));
+        }
+        
+        // Function to convert data URL to File
+        function dataURLtoFile(dataUrl, filename) {
+            return fetch(dataUrl)
+                .then(res => res.blob())
+                .then(blob => new File([blob], filename, { type: 'image/jpeg' }));
+        }
+        
+        // Open file selector when upload button is clicked
+        if (uploadBtn && fileUpload) {
+            uploadBtn.addEventListener('click', function() {
+                fileUpload.click();
+            });
+        }
+        
+        // Handle delete action
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                const photoElement = document.getElementById('profilePhoto');
+                const uri = photoElement.dataset ? photoElement.dataset.photo : null;
+                
+                if (!uri) {
+                    showErrorToast('No photo to delete');
+                    return;
+                }
+                
+                // Use fetch API
+                fetch('/appearance/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ uri: uri })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showSuccessToast(data.message);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showErrorToast(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorToast('An error occurred while deleting the photo');
+                });
+            });
+        }
+        
+        // Theme modal functionality
+        const modalOpenBtn = document.querySelector('.modal-open');
+        const themeModal = new bootstrap.Modal(document.getElementById('themeModal'));
+        const themeCards = document.querySelectorAll('.theme-card');
+        const profileThemeSelect = document.getElementById('profileTheme');
+        const confirmThemeBtn = document.getElementById('confirmTheme');
+        let selectedTheme = profileThemeSelect.value;
+        
+        // Open theme modal
+        if (modalOpenBtn) {
+            modalOpenBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                themeModal.show();
+                
+                // Highlight currently selected theme
+                themeCards.forEach(card => {
+                    if (card.dataset.theme === selectedTheme) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+            });
+        }
+        
+        // Handle theme card clicks
+        themeCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all cards
+                themeCards.forEach(c => c.classList.remove('selected'));
+                
+                // Add selected class to clicked card
+                this.classList.add('selected');
+                
+                // Update selected theme
+                selectedTheme = this.dataset.theme;
+            });
+        });
+        
+        // Preview theme in new tab
+        const previewThemeBtn = document.getElementById('previewTheme');
+        if (previewThemeBtn) {
+            previewThemeBtn.addEventListener('click', function() {
+                const username = '<%= user.username %>';
+                const previewUrl = `/profile/${username}?preview=${selectedTheme}`;
+                window.open(previewUrl, '_blank');
+            });
+        }
+        
+        // Confirm theme selection
+        if (confirmThemeBtn) {
+            confirmThemeBtn.addEventListener('click', function() {
+                profileThemeSelect.value = selectedTheme;
+                themeModal.hide();
+                
+                // Show success message
+                showSuccessToast('Theme selected! Remember to save your changes.');
+            });
+        }
+        
+        // Profile Badge Generator
+        const badgeStyles = document.querySelectorAll('input[name="badgeStyle"]');
+        const badgeImage = document.getElementById('badgeImage');
+        const markdownCode = document.getElementById('markdownCode');
+        const htmlCode = document.getElementById('htmlCode');
+        const username = '<%= user.username %>';
+        const baseUrl = window.location.origin;
+        
+        function updateBadge() {
+            const selectedStyle = document.querySelector('input[name="badgeStyle"]:checked').value;
+            let badgeUrl = '';
+            
+            // Generate badge URL based on style
+            if (selectedStyle === 'flat') {
+                badgeUrl = `https://img.shields.io/badge/OneLink-${username}-667eea?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzEiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTE0IDExYTUgNSAwIDAgMC03LjU0LS41NGwtMyAzYTUgNSAwIDAgMCA3LjA3IDcuMDdsMS43MS0xLjcxIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==`;
+            } else if (selectedStyle === 'gradient') {
+                badgeUrl = `https://img.shields.io/badge/OneLink-${username}-667eea?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzEiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTE0IDExYTUgNSAwIDAgMC03LjU0LS41NGwtMyAzYTUgNSAwIDAgMCA3LjA3IDcuMDdsMS43MS0xLjcxIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==`;
+            } else {
+                badgeUrl = `https://img.shields.io/badge/OneLink-${username}-667eea?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEwIDEzYTUgNSAwIDAgMCA3LjU0LjU0bDMtM2E1IDUgMCAwIDAtNy4wNy03LjA3bC0xLjcyIDEuNzEiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggZD0iTTE0IDExYTUgNSAwIDAgMC03LjU0LS41NGwtMyAzYTUgNSAwIDAgMCA3LjA3IDcuMDdsMS43MS0xLjcxIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==`;
+            }
+            
+            const profileUrl = `${baseUrl}/profile/${username}`;
+            
+            // Update badge image
+            badgeImage.src = badgeUrl;
+            
+            // Update markdown code
+            markdownCode.value = `[![OneLink Profile](${badgeUrl})](${profileUrl})`;
+            
+            // Update HTML code
+            htmlCode.value = `<a href="${profileUrl}"><img src="${badgeUrl}" alt="OneLink Profile"></a>`;
+        }
+        
+        // Initialize badge
+        updateBadge();
+        
+        // Update badge when style changes
+        badgeStyles.forEach(radio => {
+            radio.addEventListener('change', updateBadge);
+        });
+        
+        // Toast notification functions
+        function showSuccessToast(message) {
+            const toastElement = document.getElementById('successToast');
+            const messageElement = document.getElementById('successMessage');
+            messageElement.textContent = message;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+        
+        function showErrorToast(message) {
+            const toastElement = document.getElementById('errorToast');
+            const messageElement = document.getElementById('errorMessage');
+            messageElement.textContent = message;
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        }
+    });
+    
+    // Copy badge code buttons (CSP-compliant event listeners)
+    document.querySelectorAll('.copy-badge-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const type = this.getAttribute('data-type');
+            const input = type === 'markdown' ? document.getElementById('markdownCode') : document.getElementById('htmlCode');
+            
+            input.select();
+            input.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(input.value).then(() => {
+                const originalHTML = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                this.classList.add('btn-success');
+                this.classList.remove('btn-outline-secondary');
+                
+                setTimeout(() => {
+                    this.innerHTML = originalHTML;
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
             });
         });
     });
-
-
-    const toggleModal = () => {
-        document.querySelector('.modal').classList.toggle('hidden');
-    }
-    const setTheme = (themeName) => {
-        const selecttheme = document.querySelector('#profileTheme');
-        selecttheme.value = themeName;
-    }
-    // Toggle Dialog Box
-    document.querySelector('.modal-open').addEventListener('click', toggleModal);
-    document.querySelector('.theme-submit').addEventListener('click', toggleModal);
-    document.querySelector('.modal-close').addEventListener('click', toggleModal);
-    // Theme setting
-    document.querySelector('.default').addEventListener('click', function(){setTheme('default')})
-    document.querySelector('.dark').addEventListener('click', function(){setTheme('dark')})
-    document.querySelector('.wave').addEventListener('click', function(){setTheme('wave')})
-    document.querySelector('.purple').addEventListener('click', function(){setTheme('purple')})
-    document.querySelector('.hexagonal').addEventListener('click', function(){setTheme('hexagonal')})
-    document.querySelector('.bluedot').addEventListener('click', function(){setTheme('bluedot')})
-    document.querySelector('.purpledot').addEventListener('click', function(){setTheme('purpledot')})
-    document.querySelector('.shapes').addEventListener('click', function(){setTheme('shapes')})
-    document.querySelector('.snow').addEventListener('click', function(){setTheme('snow')})
-    document.querySelector('.moon').addEventListener('click', function(){setTheme('moon')})
-    document.querySelector('.soundwave').addEventListener('click', function(){setTheme('soundwave')})
-    document.querySelector('.abstractpaper').addEventListener('click', function(){setTheme('abstractpaper')})
-    document.querySelector('.stockmarket').addEventListener('click', function(){setTheme('stockmarket')})
-    document.querySelector('.worldmapindia').addEventListener('click', function(){setTheme('worldmapindia')})
-    document.querySelector('.sprinkle').addEventListener('click', function(){setTheme('sprinkle')})
-    document.querySelector('.masscircles').addEventListener('click', function(){setTheme('masscircles')})
-    document.querySelector('.animatedshape').addEventListener('click', function(){setTheme('animatedshape')})
-    document.querySelector('.meteor').addEventListener('click', function(){setTheme('meteor')})
 </script>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- include footer -->
 <%-include('../dashboard/include/_footer')%>
