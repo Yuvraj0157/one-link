@@ -30,8 +30,8 @@ const verifyCsrfToken = (req, res, next) => {
         return next();
     }
 
-    // Skip for API routes
-    if (req.path.startsWith('/api/')) {
+    // Skip for API routes and public routes
+    if (req.path.startsWith('/api/') || req.path.startsWith('/profile') || req.path.startsWith('/track')) {
         return next();
     }
 
@@ -51,9 +51,21 @@ const verifyCsrfToken = (req, res, next) => {
     const sessionToken = req.session.csrfToken;
 
     if (!token || !sessionToken || token !== sessionToken) {
-        console.warn('CSRF token validation failed');
+        console.warn('CSRF token validation failed', {
+            hasToken: !!token,
+            hasSessionToken: !!sessionToken,
+            tokensMatch: token === sessionToken,
+            path: req.path
+        });
+        
+        // If it's a form submission, redirect back with error
+        if (req.headers['content-type']?.includes('application/x-www-form-urlencoded')) {
+            req.flash('error', 'Your session has expired. Please try again.');
+            return res.redirect('back');
+        }
+        
         return res.status(403).render('403', {
-            error: 'Invalid security token. Please refresh the page and try again.'
+            error: 'Invalid security token. Your session may have expired. Please refresh the page and try again.'
         });
     }
 

@@ -117,6 +117,17 @@
                 border-style: solid;
                 border-radius: 20px;
                 margin: 1rem;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+
+            iframe::-webkit-scrollbar {
+                display: none;
+            }
+
+            iframe {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
             }
 
             footer {
