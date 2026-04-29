@@ -160,7 +160,7 @@ router.get('/', async (req, res) => {
         const clickQuery = { userId: req.userID, ...dateFilter };
         const totalClicks = await LinkClick.countDocuments(clickQuery);
         const recentClicks = await LinkClick.find(clickQuery)
-            .select('linkTitle linkUrl timestamp referrer deviceType country')
+            .select('linkTitle linkUrl timestamp referrer deviceType country countryCode')
             .sort({ timestamp: -1 })
             .skip(skip)
             .limit(limit)
