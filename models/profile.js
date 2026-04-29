@@ -44,7 +44,14 @@ const profileSchema = new mongoose.Schema({
         payment: { type: String },
         github: { type: String },
     }
-})
+}, {
+    timestamps: true // Adds createdAt and updatedAt automatically
+});
+
+// Indexes for performance optimization
+profileSchema.index({ userid: 1 }); // Primary lookup index
+profileSchema.index({ totalViews: -1 }); // For sorting by popularity
+profileSchema.index({ 'links._id': 1 }); // For quick link lookups within profiles
 
 const Profile = mongoose.model('profile',profileSchema);
 

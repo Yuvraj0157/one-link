@@ -13,6 +13,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 
 // Import utilities
 const logger = require('./utils/logger');
+const { initRedis, closeRedis } = require('./utils/cache');
 const { addCorrelationId, logRequest } = require('./middlewares/requestLogger');
 const {
     errorHandler,
@@ -104,22 +105,52 @@ app.use(verifyCsrfToken);
 app.set("view engine", "ejs");
 app.set('views', path.join(__dirname, 'views'));
 
-// Connecting to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then((result) => {
-    logger.info('Connected to MongoDB successfully');
+// Connecting to MongoDB and Redis
+async function startServer() {
+  try {
+    // Connect to MongoDB with connection pooling
+    await mongoose.connect(process.env.MONGODB_URI, {
+      maxPoolSize: 10, // Maximum number of connections in the pool
+      minPoolSize: 2,  // Minimum number of connections in the pool
+      maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+      serverSelectionTimeoutMS: 5000, // Timeout for server selection
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+      family: 4 // Use IPv4, skip trying IPv6
+    });
+    logger.info('Connected to MongoDB successfully with connection pooling', {
+      maxPoolSize: 10,
+      minPoolSize: 2
+    });
+    
+    // Initialize Redis (optional - app will work without it)
+    await initRedis();
+    
     const port = process.env.PORT || 80;
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
       logger.info(`Server started on port ${port}`, {
         environment: process.env.NODE_ENV || 'development',
         port: port
       });
     });
-  })
-  .catch((err) => {
-    logger.error('Failed to connect to MongoDB', { error: err.message });
+    
+    // Graceful shutdown
+    process.on('SIGTERM', async () => {
+      logger.info('SIGTERM signal received: closing HTTP server');
+      server.close(async () => {
+        logger.info('HTTP server closed');
+        await closeRedis();
+        await mongoose.connection.close();
+        process.exit(0);
+      });
+    });
+    
+  } catch (err) {
+    logger.error('Failed to start server', { error: err.message });
     process.exit(1);
-  });
+  }
+}
+
+startServer();
 
 // Routes
 app.use(authRoutes);

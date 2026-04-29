@@ -61,15 +61,15 @@ router.post('/register',
             });
         }
         
-        // Check if username exists
-        const existingUsername = await User.findOne({ username });
+        // Check if username exists (only check _id field for existence)
+        const existingUsername = await User.findOne({ username }).select('_id').lean();
         if (existingUsername) {
             req.flash('error', 'Username already exists');
             return res.redirect('/register');
         }
         
-        // Check if email exists
-        const existingEmail = await User.findOne({ email });
+        // Check if email exists (only check _id field for existence)
+        const existingEmail = await User.findOne({ email }).select('_id').lean();
         if (existingEmail) {
             req.flash('error', 'Email already exists');
             return res.redirect('/register');
@@ -142,8 +142,8 @@ router.post('/login',
             });
         }
         
-        // Find user
-        const user = await User.findOne({ email });
+        // Find user (only select needed fields for login)
+        const user = await User.findOne({ email }).select('_id email password status');
         if (!user) {
             req.flash('error', 'Invalid email or password');
             return res.redirect('/login');
@@ -227,7 +227,7 @@ router.post('/forgot-password',
             });
         }
         
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email }).select('_id email');
         if (!user) {
             // Don't reveal if email exists or not for security
             req.flash('error', 'If that email exists, a reset link has been sent');
@@ -306,8 +306,8 @@ router.post('/reset-password',
             throw new AppError('Invalid or expired reset token', 400);
         }
         
-        // Find user
-        const user = await User.findById(decoded.userID);
+        // Find user (only select needed fields)
+        const user = await User.findById(decoded.userID).select('_id password');
         if (!user) {
             throw new AppError('User not found', 404);
         }
@@ -343,8 +343,8 @@ router.get('/verify-email/:token', emailLimiter, async (req, res) => {
         throw new AppError('Invalid or expired verification token', 400);
     }
     
-    // Find and update user
-    const user = await User.findById(decoded.userID);
+    // Find and update user (only select needed fields)
+    const user = await User.findById(decoded.userID).select('_id email status');
     if (!user) {
         throw new AppError('User not found', 404);
     }

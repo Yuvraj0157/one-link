@@ -5,6 +5,8 @@ const geoip = require('geoip-lite');
 const LinkClick = require('../models/linkClick');
 const Profile = require('../models/profile');
 const User = require('../models/user');
+const { cacheMiddleware, userCacheKey } = require('../middlewares/cacheMiddleware');
+const { deleteCache, deleteCachePattern } = require('../utils/cache');
 
 // Helper function to detect device type from user agent
 function getDeviceType(userAgent) {
@@ -34,13 +36,13 @@ router.get('/link/:username/:linkId', async (req, res) => {
     try {
         const { username, linkId } = req.params;
         
-        // Find user and profile
-        const user = await User.findOne({ username });
+        // Find user and profile (only select needed fields)
+        const user = await User.findOne({ username }).select('_id').lean();
         if (!user) {
             return res.status(404).send('User not found');
         }
         
-        const profile = await Profile.findOne({ userid: user._id });
+        const profile = await Profile.findOne({ userid: user._id }).select('links').lean();
         if (!profile) {
             return res.status(404).send('Profile not found');
         }
@@ -91,8 +93,12 @@ router.get('/link/:username/:linkId', async (req, res) => {
 // Analytics dashboard route
 router.get('/', async (req, res) => {
     try {
-        const user = await User.findOne({ _id: req.userID });
-        const profile = await Profile.findOne({ userid: req.userID });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        const user = await User.findOne({ _id: req.userID }).select('username email').lean();
+        const profile = await Profile.findOne({ userid: req.userID }).select('links totalViews').lean();
         
         // Get analytics summary
         const summary = await LinkClick.getAnalyticsSummary(req.userID);
@@ -100,10 +106,16 @@ router.get('/', async (req, res) => {
         // Get daily clicks for chart (last 30 days)
         const dailyClicks = await LinkClick.getDailyClicks(req.userID, 30);
         
-        // Get recent clicks
+        // Get recent clicks with pagination
+        const totalClicks = await LinkClick.countDocuments({ userId: req.userID });
         const recentClicks = await LinkClick.find({ userId: req.userID })
+            .select('linkTitle linkUrl timestamp referrer deviceType country')
             .sort({ timestamp: -1 })
-            .limit(20);
+            .skip(skip)
+            .limit(limit)
+            .lean();
+        
+        const totalPages = Math.ceil(totalClicks / limit);
         
         // Get clicks per link with CTR and performance badges
         const totalViews = profile.totalViews || 0;
@@ -175,7 +187,15 @@ router.get('/', async (req, res) => {
             totalViews,
             deviceStats,
             quickStats,
-            csrfToken: req.session.csrfToken
+            csrfToken: req.session.csrfToken,
+            pagination: {
+                page,
+                limit,
+                totalPages,
+                totalClicks,
+                hasNext: page < totalPages,
+                hasPrev: page > 1
+            }
         });
         
     } catch (error) {
@@ -184,16 +204,27 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Export analytics data as JSON
-router.get('/export', async (req, res) => {
+// Export analytics data as JSON (cache for 1 minute)
+router.get('/export', cacheMiddleware(60, userCacheKey('analytics-export')), async (req, res) => {
     try {
-        const { startDate, endDate, format } = req.query;
+        const { startDate, endDate, format, limit } = req.query;
+        const maxLimit = parseInt(limit) || 1000; // Default max 1000 records
         
-        const clicks = await LinkClick.getUserClicks(
-            req.userID,
-            startDate,
-            endDate
-        );
+        let query = { userId: req.userID };
+        
+        if (startDate && endDate) {
+            query.timestamp = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+        
+        // Use pagination for large exports
+        const clicks = await LinkClick.find(query)
+            .select('timestamp linkTitle linkUrl referrer userAgent deviceType country')
+            .sort({ timestamp: -1 })
+            .limit(maxLimit)
+            .lean();
         
         if (format === 'csv') {
             // Convert to CSV
@@ -222,22 +253,24 @@ router.get('/export', async (req, res) => {
     }
 });
 
-// Get analytics for specific link
-router.get('/link/:linkId', async (req, res) => {
+// Get analytics for specific link (cache for 2 minutes)
+router.get('/link/:linkId', cacheMiddleware(120, (req) => `analytics:link:${req.params.linkId}`), async (req, res) => {
     try {
         const { linkId } = req.params;
         
-        // Verify link belongs to user
-        const profile = await Profile.findOne({ userid: req.userID });
-        const link = profile.links.id(linkId);
+        // Verify link belongs to user (only select links field)
+        const profile = await Profile.findOne({ userid: req.userID }).select('links').lean();
+        const link = profile.links.find(l => l._id.toString() === linkId);
         
         if (!link) {
             return res.status(404).json({ success: false, error: 'Link not found' });
         }
         
         const clicks = await LinkClick.find({ linkId })
+            .select('timestamp referrer deviceType country userAgent')
             .sort({ timestamp: -1 })
-            .limit(100);
+            .limit(100)
+            .lean();
         
         const clickCount = await LinkClick.getClickCount(linkId);
         

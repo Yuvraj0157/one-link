@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-const multer  = require('multer')
-const { S3Client,DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const multer  = require('multer');
+const { S3Client, DeleteObjectCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
 const multerS3 = require('multer-s3');
 
 const Profile = require('../models/profile');
 const User = require('../models/user');
+const { deleteCachePattern } = require('../utils/cache');
+const { optimizeImage, validateImage } = require('../utils/imageOptimizer');
+const logger = require('../utils/logger');
 
 
 const s3 = new S3Client({
@@ -20,52 +23,45 @@ const s3 = new S3Client({
   signatureVersion: 'v4',
 });
 
+// Use memory storage for image optimization before upload
 const upload = multer({
-    storage: multerS3({
-      s3: s3,
-      bucket: process.env.S3_BUCKET_NAME,
-      metadata: function (req, file, cb) {
-        cb(null, {fieldName: file.fieldname});
-      },
-      key: function (req, file, cb) {
-        cb(null, `${req.userID}.jpg`);
-      },
-      contentType: multerS3.AUTO_CONTENT_TYPE,
-      acl: 'public-read',
-      contentDisposition: 'inline',
-    }),
-    limits: { fileSize: 1024 * 1024 * 1 }
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit before optimization
+    fileFilter: (req, file, cb) => {
+      // Accept only image files
+      if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only image files are allowed'), false);
+      }
+    }
   }).single('file');
 
-router.get('/',(req,res)=>{
-    User.findOne({ _id: req.userID })
-    .then((user)=>{
-        Profile.findOne({userid:req.userID})
-        .then((profile)=>{
-            res.render('appearance/index',{user:user,data:profile});
-        })
-        .catch((err)=>{
-            console.log(err);
-            res.status(500).render('500');
-        })
-    })
-    .catch((err)=>{
+router.get('/', async (req, res) => {
+    try {
+        const user = await User.findOne({ _id: req.userID }).select('username email').lean();
+        const profile = await Profile.findOne({ userid: req.userID })
+            .select('photo title bio theme')
+            .lean();
+        
+        res.render('appearance/index', { user: user, data: profile });
+    } catch (err) {
         console.log(err);
         res.status(500).render('500');
-    })
+    }
 });
 
 router.post('/', (req, res) => {
-    upload(req, res, function (err) {
+    upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-          req.flash('error', 'File too large. Maximum size allowed is 1MB.');
+          req.flash('error', 'File too large. Maximum size allowed is 5MB.');
         } else {
           req.flash('error', err.message);
         }
         return res.redirect('/appearance');
       } else if (err) {
-        req.flash('error', 'An unknown error occurred.');
+        req.flash('error', err.message || 'An unknown error occurred.');
         return res.redirect('/appearance');
       }
       
@@ -74,7 +70,9 @@ router.post('/', (req, res) => {
       const sessionToken = req.session.csrfToken;
       
       if (!token || !sessionToken || token !== sessionToken) {
-        console.warn('CSRF token validation failed in appearance route');
+        logger.warn('CSRF token validation failed in appearance route', {
+          correlationId: req.correlationId
+        });
         return res.status(403).render('403', {
           error: 'Invalid security token. Please refresh the page and try again.'
         });
@@ -86,18 +84,74 @@ router.post('/', (req, res) => {
         theme: req.body.theme,
       };
   
-      if (req.file) {
-        data.photo = req.file.location + "?v=1.1";
-      }
-  
-      Profile.findOneAndUpdate({ userid: req.userID }, data)
-        .then(() => {
-          res.redirect('/appearance');
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(500).redirect('/appearance');
+      try {
+        if (req.file) {
+          // Validate image
+          const validation = await validateImage(req.file.buffer, {
+            maxSize: 5 * 1024 * 1024, // 5MB
+            minWidth: 100,
+            minHeight: 100,
+            maxWidth: 2000,
+            maxHeight: 2000
+          });
+
+          if (!validation.valid) {
+            req.flash('error', validation.errors[0]);
+            return res.redirect('/appearance');
+          }
+
+          // Optimize image
+          const optimizedBuffer = await optimizeImage(req.file.buffer, {
+            width: 800,
+            height: 800,
+            quality: 85,
+            format: 'jpeg'
+          });
+
+          // Upload optimized image to S3
+          const key = `${req.userID}.jpg`;
+          const uploadParams = {
+            Bucket: process.env.S3_BUCKET_NAME,
+            Key: key,
+            Body: optimizedBuffer,
+            ContentType: 'image/jpeg',
+            ACL: 'public-read',
+            ContentDisposition: 'inline'
+          };
+
+          const command = new PutObjectCommand(uploadParams);
+          await s3.send(command);
+
+          // Construct S3 URL
+          const s3Url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${key}`;
+          data.photo = s3Url + "?v=" + Date.now();
+
+          logger.info('Image uploaded and optimized', {
+            correlationId: req.correlationId,
+            userId: req.userID,
+            originalSize: req.file.size,
+            optimizedSize: optimizedBuffer.length
+          });
+        }
+    
+        await Profile.findOneAndUpdate({ userid: req.userID }, data, { select: 'photo title bio theme' });
+        
+        // Invalidate user's profile cache
+        const user = await User.findById(req.userID).select('username').lean();
+        if (user) {
+          await deleteCachePattern(`profile:${user.username}*`);
+        }
+        
+        res.redirect('/appearance');
+      } catch (error) {
+        logger.error('Error updating appearance', {
+          correlationId: req.correlationId,
+          userId: req.userID,
+          error: error.message
         });
+        req.flash('error', 'An error occurred while updating your profile.');
+        res.redirect('/appearance');
+      }
     });
   });
 
@@ -121,8 +175,13 @@ router.post("/delete", async (req, res) => {
   const command = new DeleteObjectCommand(params);
   try {
     await s3.send(command);
-    Profile.findOneAndUpdate({ userid: req.userID }, { photo: null })
-      .then(() => {
+    Profile.findOneAndUpdate({ userid: req.userID }, { photo: null }, { select: 'photo' })
+      .then(async () => {
+        // Invalidate user's profile cache
+        const user = await User.findById(req.userID).select('username').lean();
+        if (user) {
+          await deleteCachePattern(`profile:${user.username}*`);
+        }
         res.json({ status: "success" , message: "Photo deleted successfully"});
       })
       .catch((err) => {

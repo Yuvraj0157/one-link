@@ -6,16 +6,38 @@ const User = require('../models/user');
 const { Link } = require('../models/link');
 const logger = require('../utils/logger');
 const { AppError } = require('../middlewares/errorHandler');
+const { deleteCachePattern } = require('../utils/cache');
 
 /**
  * Dashboard home page
  */
 router.get('/', async (req, res) => {
-    const profile = await Profile.findOne({ userid: req.userID });
-    const user = await User.findById(req.userID);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const profile = await Profile.findOne({ userid: req.userID }).lean();
+    const user = await User.findById(req.userID).select('username email status').lean();
     
     if (!user) {
         throw new AppError('User not found', 404);
+    }
+    
+    // Paginate links
+    let paginatedProfile = { ...profile };
+    if (profile && profile.links) {
+        const totalLinks = profile.links.length;
+        const totalPages = Math.ceil(totalLinks / limit);
+        
+        paginatedProfile.links = profile.links.slice(skip, skip + limit);
+        paginatedProfile.pagination = {
+            page,
+            limit,
+            totalPages,
+            totalLinks,
+            hasNext: page < totalPages,
+            hasPrev: page > 1
+        };
     }
     
     logger.info('Dashboard accessed', {
@@ -23,14 +45,14 @@ router.get('/', async (req, res) => {
         userId: req.userID,
     });
     
-    res.render('dashboard/index', { user, profile });
+    res.render('dashboard/index', { user, profile: paginatedProfile });
 });
 
 /**
  * Add link page
  */
 router.get('/add-link', async (req, res) => {
-    const user = await User.findById(req.userID);
+    const user = await User.findById(req.userID).select('username email').lean();
     
     if (!user) {
         throw new AppError('User not found', 404);
@@ -55,6 +77,13 @@ router.post('/add-link', async (req, res) => {
         { $push: { links: newLink } }
     );
     
+    // Invalidate user's profile cache
+    const user = await User.findById(req.userID).select('username').lean();
+    if (user) {
+        await deleteCachePattern(`profile:${user.username}*`);
+        await deleteCachePattern(`analytics:*:${req.userID}*`);
+    }
+    
     logger.info('Link added', {
         correlationId: req.correlationId,
         userId: req.userID,
@@ -74,8 +103,8 @@ router.get('/update-link', async (req, res) => {
         throw new AppError('Link ID is required', 400);
     }
     
-    const user = await User.findById(req.userID);
-    const profile = await Profile.findOne({ userid: req.userID });
+    const user = await User.findById(req.userID).select('username email').lean();
+    const profile = await Profile.findOne({ userid: req.userID }).lean();
     
     if (!user || !profile) {
         throw new AppError('User or profile not found', 404);
@@ -100,7 +129,7 @@ router.post('/update-link', async (req, res) => {
         throw new AppError('Title, URL, and Link ID are required', 400);
     }
     
-    const profile = await Profile.findOne({ userid: req.userID });
+    const profile = await Profile.findOne({ userid: req.userID }).select('links');
     
     if (!profile) {
         throw new AppError('Profile not found', 404);
@@ -115,6 +144,13 @@ router.post('/update-link', async (req, res) => {
     link.title = title;
     link.url = url;
     await profile.save();
+    
+    // Invalidate user's profile cache
+    const user = await User.findById(req.userID).select('username').lean();
+    if (user) {
+        await deleteCachePattern(`profile:${user.username}*`);
+        await deleteCachePattern(`analytics:*:${req.userID}*`);
+    }
     
     logger.info('Link updated', {
         correlationId: req.correlationId,
@@ -141,7 +177,7 @@ router.post('/delete-link', async (req, res) => {
         throw new AppError('Link ID is required', 400);
     }
     
-    const profile = await Profile.findOne({ userid: req.userID });
+    const profile = await Profile.findOne({ userid: req.userID }).select('links');
     
     if (!profile) {
         throw new AppError('Profile not found', 404);
@@ -156,6 +192,13 @@ router.post('/delete-link', async (req, res) => {
     link.deleteOne();
     await profile.save();
     
+    // Invalidate user's profile cache
+    const user = await User.findById(req.userID).select('username').lean();
+    if (user) {
+        await deleteCachePattern(`profile:${user.username}*`);
+        await deleteCachePattern(`analytics:*:${req.userID}*`);
+    }
+    
     logger.info('Link deleted', {
         correlationId: req.correlationId,
         userId: req.userID,
@@ -169,8 +212,8 @@ router.post('/delete-link', async (req, res) => {
  * Social handles page
  */
 router.get('/handles', async (req, res) => {
-    const user = await User.findById(req.userID);
-    const profile = await Profile.findOne({ userid: req.userID });
+    const user = await User.findById(req.userID).select('username email').lean();
+    const profile = await Profile.findOne({ userid: req.userID }).select('handles').lean();
     
     if (!user || !profile) {
         throw new AppError('User or profile not found', 404);
@@ -197,7 +240,7 @@ router.post('/handles', async (req, res) => {
         // Remove CSRF token from data before saving
         delete data._csrf;
         
-        const profile = await Profile.findOne({ userid: req.userID });
+        const profile = await Profile.findOne({ userid: req.userID }).select('handles');
         
         if (!profile) {
             return res.status(404).json({
@@ -208,6 +251,12 @@ router.post('/handles', async (req, res) => {
         
         const newData = { ...profile.handles, ...data };
         await Profile.updateOne({ userid: req.userID }, { handles: newData });
+        
+        // Invalidate user's profile cache
+        const user = await User.findById(req.userID).select('username').lean();
+        if (user) {
+            await deleteCachePattern(`profile:${user.username}*`);
+        }
         
         logger.info('Social handles updated', {
             correlationId: req.correlationId,
