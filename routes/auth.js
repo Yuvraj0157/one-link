@@ -37,10 +37,12 @@ router.post('/register',
         .isEmail()
         .withMessage('Please enter a valid email.')
         .normalizeEmail(),
-        body('password', 'Password must be at least 6 characters long and alphanumeric')
-        .isLength({ min: 6 })
-        .isAlphanumeric()
-        .trim(),
+        body('password')
+        .trim()
+        .isLength({ min: 8 })
+        .withMessage('Password must be at least 8 characters long')
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'),
         body('confirmPassword')
         .trim()
         .custom((value, { req }) => {
@@ -199,13 +201,14 @@ router.get('/logout', (req, res) => {
 });
 
 router.get('/forgot-password', (req, res) => {
-    let message = req.flash('error');
-    if (message.length > 0) {
-        message = message[0];
-    } else {
-        message = null;
-    }
-    res.render('auth/forgot-password', { title: 'Forgot Password' , error: message});
+    let errorMessage = req.flash('error');
+    let successMessage = req.flash('success');
+    
+    res.render('auth/forgot-password', {
+        title: 'Forgot Password',
+        error: errorMessage.length > 0 ? errorMessage[0] : null,
+        success: successMessage.length > 0 ? successMessage[0] : null
+    });
 });
 
 router.post('/forgot-password',
@@ -251,7 +254,12 @@ router.post('/forgot-password',
             email,
         });
         
-        res.redirect('/login');
+        // Show success message on the same page
+        res.render('auth/forgot-password', {
+            title: 'Forgot Password',
+            error: null,
+            success: 'Password reset link has been sent to your email. Please check your inbox.'
+        });
     }
 );
 
@@ -262,22 +270,56 @@ router.get('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     
     if (!token) {
-        throw new AppError('Reset token is required', 400);
+        return res.status(400).render('auth/reset-password', {
+            title: 'Reset Password',
+            error: 'Reset token is required',
+            token: null
+        });
     }
     
-    res.render('auth/reset-password', {
-        title: 'Reset Password',
-        error: null,
-        token
-    });
+    // Verify token validity before showing the form
+    try {
+        const decoded = await verifyToken(token, process.env.JWT_RESET_PASSWORD);
+        
+        if (!decoded || !decoded.userID) {
+            return res.status(400).render('auth/reset-password', {
+                title: 'Reset Password',
+                error: 'Invalid reset link. Please request a new password reset.',
+                token: null
+            });
+        }
+        
+        // Token is valid, show the form
+        res.render('auth/reset-password', {
+            title: 'Reset Password',
+            error: null,
+            token
+        });
+    } catch (error) {
+        // Handle JWT expiration or invalid token
+        if (error.name === 'TokenExpiredError') {
+            return res.status(400).render('auth/reset-password', {
+                title: 'Reset Password',
+                error: 'This password reset link has expired. Please request a new one.',
+                token: null
+            });
+        }
+        return res.status(400).render('auth/reset-password', {
+            title: 'Reset Password',
+            error: 'Invalid reset link. Please request a new password reset.',
+            token: null
+        });
+    }
 });
 
 router.post('/reset-password',
     [
-        body('password', 'Password must be at least 6 characters long and alphanumeric')
-        .isLength({ min: 6 })
-        .isAlphanumeric()
-        .trim(),
+        body('password')
+        .trim()
+        .isLength({ min: 8 })
+        .withMessage('Password must be at least 8 characters long')
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
+        .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'),
         body('confirmPassword')
         .trim()
         .custom((value, { req }) => {
@@ -300,10 +342,31 @@ router.post('/reset-password',
         }
 
         // Verify token
-        const decoded = await verifyToken(token, process.env.JWT_RESET_PASSWORD);
+        let decoded;
+        try {
+            decoded = await verifyToken(token, process.env.JWT_RESET_PASSWORD);
+        } catch (error) {
+            // Handle JWT expiration or invalid token
+            if (error.name === 'TokenExpiredError') {
+                return res.status(400).render('auth/reset-password', {
+                    title: 'Reset Password',
+                    error: 'This password reset link has expired. Please request a new one.',
+                    token: null
+                });
+            }
+            return res.status(400).render('auth/reset-password', {
+                title: 'Reset Password',
+                error: 'Invalid reset link. Please request a new password reset.',
+                token: null
+            });
+        }
         
         if (!decoded || !decoded.userID) {
-            throw new AppError('Invalid or expired reset token', 400);
+            return res.status(400).render('auth/reset-password', {
+                title: 'Reset Password',
+                error: 'Invalid reset link. Please request a new password reset.',
+                token: null
+            });
         }
         
         // Find user (only select needed fields)
