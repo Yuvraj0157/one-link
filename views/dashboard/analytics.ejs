@@ -211,9 +211,13 @@
                             <% summary.topCountries.forEach(country => { %>
                                 <li class="list-group-item d-flex justify-content-between align-items-center" style="padding: 10px 0;">
                                     <span>
-                                        <span style="font-size: 20px; margin-right: 8px;">
-                                            <%= String.fromCodePoint(...country.countryCode.toUpperCase().split('').map(c => 127397 + c.charCodeAt())) %>
-                                        </span>
+                                        <img src="https://flagsapi.com/<%= country.countryCode.toUpperCase() %>/flat/32.png"
+                                             width="20"
+                                             height="15"
+                                             alt="<%= country._id %>"
+                                             class="country-flag-img"
+                                             style="margin-right: 8px; vertical-align: middle;">
+                                        <span class="badge bg-primary country-code-badge" style="margin-right: 8px; font-size: 11px; display: none;"><%= country.countryCode %></span>
                                         <span style="font-size: 13px;"><%= country._id %></span>
                                     </span>
                                     <span class="badge bg-success rounded-pill"><%= country.count %></span>
@@ -619,12 +623,13 @@
                                             </td>
                                             <td>
                                                 <% if(click.countryCode && click.countryCode !== 'XX') { %>
-                                                    <%
-                                                    // Convert country code to flag emoji
-                                                    const code = click.countryCode.toUpperCase();
-                                                    const flag = String.fromCodePoint(...code.split('').map(c => 127397 + c.charCodeAt(0)));
-                                                    %>
-                                                    <span style="font-size: 20px; margin-right: 5px;"><%= flag %></span>
+                                                    <img src="https://flagsapi.com/<%= click.countryCode.toUpperCase() %>/flat/32.png"
+                                                         width="16"
+                                                         height="12"
+                                                         alt="<%= click.country %>"
+                                                         class="country-flag-img"
+                                                         style="margin-right: 5px; vertical-align: middle;">
+                                                    <span class="badge bg-primary country-code-badge" style="font-size: 10px; margin-right: 5px; display: none;"><%= click.countryCode %></span>
                                                     <small><%= click.country %></small>
                                                 <% } else { %>
                                                     <span class="badge bg-secondary">Unknown</span>
@@ -1178,8 +1183,21 @@ function fallbackCopy(input, btn) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
 <script>
-// Initialize Bootstrap tooltips
+// Handle flag image errors
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle flag image load errors
+    const flagImages = document.querySelectorAll('.country-flag-img');
+    flagImages.forEach(function(img) {
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+            const badge = this.nextElementSibling;
+            if (badge && badge.classList.contains('country-code-badge')) {
+                badge.style.display = 'inline';
+            }
+        });
+    });
+    
+    // Initialize Bootstrap tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
