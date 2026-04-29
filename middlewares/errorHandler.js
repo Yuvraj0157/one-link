@@ -152,5 +152,3 @@ module.exports = {
     handleUnhandledRejection,
     handleUncaughtException,
 };
-
-// Made with Bob

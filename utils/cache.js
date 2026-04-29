@@ -171,5 +171,3 @@ module.exports = {
     isConnected,
     closeRedis
 };
-
-// Made with Bob

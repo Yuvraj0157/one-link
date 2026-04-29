@@ -187,5 +187,3 @@ module.exports = {
     getImageMetadata,
     validateImage
 };
-
-// Made with Bob

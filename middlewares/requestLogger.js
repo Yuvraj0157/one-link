@@ -1,26 +1,15 @@
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
 
-/**
- * Middleware to add correlation ID to each request
- */
 const addCorrelationId = (req, res, next) => {
-    // Check if correlation ID exists in headers, otherwise generate new one
     req.correlationId = req.headers['x-correlation-id'] || uuidv4();
-    
-    // Add correlation ID to response headers
     res.setHeader('X-Correlation-ID', req.correlationId);
-    
     next();
 };
 
-/**
- * Middleware to log incoming requests
- */
 const logRequest = (req, res, next) => {
     const startTime = Date.now();
     
-    // Log request
     logger.info('Incoming request', {
         correlationId: req.correlationId,
         method: req.method,
@@ -30,7 +19,6 @@ const logRequest = (req, res, next) => {
         userId: req.userID || 'anonymous',
     });
 
-    // Log response when finished
     res.on('finish', () => {
         const duration = Date.now() - startTime;
         const logLevel = res.statusCode >= 400 ? 'warn' : 'info';
@@ -48,9 +36,6 @@ const logRequest = (req, res, next) => {
     next();
 };
 
-/**
- * Middleware to sanitize sensitive data from logs
- */
 const sanitizeLogData = (data) => {
     const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'authorization'];
     const sanitized = { ...data };
@@ -69,5 +54,3 @@ module.exports = {
     logRequest,
     sanitizeLogData,
 };
-
-// Made with Bob

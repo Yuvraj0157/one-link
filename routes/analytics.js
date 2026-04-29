@@ -291,5 +291,3 @@ router.get('/link/:linkId', cacheMiddleware(120, (req) => `analytics:link:${req.
 });
 
 module.exports = router;
-
-// Made with Bob

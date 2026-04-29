@@ -81,5 +81,3 @@ logger.stream = {
 };
 
 module.exports = logger;
-
-// Made with Bob

@@ -149,5 +149,3 @@ module.exports = {
     userCacheKey,
     profileCacheKey
 };
-
-// Made with Bob

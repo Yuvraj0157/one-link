@@ -24,6 +24,7 @@ const profileSchema = new mongoose.Schema({
     totalViews:{
         type:Number,
         default:0,
+        index: true
     },
     links:[linkSchema],
     handles: {
@@ -45,13 +46,10 @@ const profileSchema = new mongoose.Schema({
         github: { type: String },
     }
 }, {
-    timestamps: true // Adds createdAt and updatedAt automatically
+    timestamps: true
 });
 
-// Indexes for performance optimization
-profileSchema.index({ userid: 1 }); // Primary lookup index
-profileSchema.index({ totalViews: -1 }); // For sorting by popularity
-profileSchema.index({ 'links._id': 1 }); // For quick link lookups within profiles
+profileSchema.index({ 'links._id': 1 });
 
 const Profile = mongoose.model('profile',profileSchema);
 

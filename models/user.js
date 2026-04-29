@@ -22,17 +22,14 @@ const userSchema = new mongoose.Schema({
     status:{
       type:String,
       enum:['verification','active'],
-      default:'verification'
+      default:'verification',
+      index: true
     }
 }, {
-    timestamps: true // Adds createdAt and updatedAt automatically
+    timestamps: true
 });
 
-// Indexes for performance optimization
-userSchema.index({ username: 1 }); // Index for username lookups
-userSchema.index({ email: 1 }); // Index for email lookups
-userSchema.index({ status: 1 }); // Index for filtering by status
-userSchema.index({ createdDate: -1 }); // Index for sorting by creation date
+userSchema.index({ createdDate: -1 });
 
 const User = mongoose.model("user",userSchema);
 

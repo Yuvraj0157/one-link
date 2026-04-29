@@ -48,13 +48,10 @@ const linkClickSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Compound indexes for efficient queries
 linkClickSchema.index({ userId: 1, timestamp: -1 });
 linkClickSchema.index({ linkId: 1, timestamp: -1 });
 linkClickSchema.index({ userId: 1, linkId: 1, timestamp: -1 });
-
-// TTL index - automatically delete clicks older than 90 days
-linkClickSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7776000 }); // 90 days = 7,776,000 seconds
+linkClickSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7776000 });
 
 // Static method to get click count for a link
 linkClickSchema.statics.getClickCount = async function(linkId) {
@@ -186,5 +183,3 @@ linkClickSchema.statics.getDailyClicks = async function(userId, days = 30) {
 const LinkClick = mongoose.model('LinkClick', linkClickSchema);
 
 module.exports = LinkClick;
-
-// Made with Bob
