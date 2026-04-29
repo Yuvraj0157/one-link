@@ -486,3 +486,8 @@ padding: 0.05rem 0.4rem 0.15rem;
     stroke: #06d6a0;
     cursor: pointer;
 }
+
+/* File upload input - hidden */
+.file-upload {
+    display: none;
+}
