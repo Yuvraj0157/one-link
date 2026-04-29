@@ -24,7 +24,6 @@ const {
 
 const { isAuth, isVerified } = require('./middlewares/auth');
 const { generalLimiter } = require('./middlewares/security');
-const { csrfProtection, verifyCsrfToken } = require('./middlewares/csrf');
 
 // Importing Routes
 const authRoutes = require("./routes/auth");
@@ -56,8 +55,8 @@ app.use(helmet({
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://getbootstrap.com", "https://cdn.jsdelivr.net"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://kit.fontawesome.com", "https://unpkg.com", "https://ajax.googleapis.com", "https://cdn.jsdelivr.net"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://ka-f.fontawesome.com"],
-            imgSrc: ["'self'", "data:", "https://onelinkprofile.s3.ap-south-1.amazonaws.com", "https://onelinkprofile.s3.amazonaws.com"],
-            connectSrc: ["'self'", "https://ka-f.fontawesome.com"],
+            imgSrc: ["'self'", "data:", "https://onelinkprofile.s3.ap-south-1.amazonaws.com", "https://onelinkprofile.s3.amazonaws.com", "https://www.google.com", "https://*.gstatic.com", "https://img.shields.io"],
+            connectSrc: ["'self'", "https://ka-f.fontawesome.com", "https://cdn.jsdelivr.net"],
             frameSrc: ["'self'"],
             objectSrc: ["'none'"],
         },
@@ -99,11 +98,6 @@ app.use(session({
 app.use(flash());
 app.use(compression());
 
-// CSRF Protection - add token to all views
-app.use(csrfProtection);
-
-// CSRF Verification - verify token on POST requests
-app.use(verifyCsrfToken);
 
 app.set("view engine", "ejs");
 app.set('views', path.join(__dirname, 'views'));
