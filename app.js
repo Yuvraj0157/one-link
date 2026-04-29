@@ -35,6 +35,9 @@ const analyticsRoutes = require("./routes/analytics");
 
 const app = express();
 
+// Trust proxy - required for correct IP detection behind load balancers/proxies
+app.set('trust proxy', true);
+
 // Handle uncaught exceptions and unhandled rejections
 handleUncaughtException();
 handleUnhandledRejection();

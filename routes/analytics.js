@@ -47,8 +47,8 @@ router.get('/link/:username/:linkId', async (req, res) => {
             return res.status(404).send('Profile not found');
         }
         
-        // Find the specific link
-        const link = profile.links.id(linkId);
+        // Find the specific link (use find instead of .id() for lean objects)
+        const link = profile.links.find(l => l._id.toString() === linkId);
         if (!link) {
             return res.status(404).send('Link not found');
         }
@@ -59,12 +59,34 @@ router.get('/link/:username/:linkId', async (req, res) => {
         const deviceType = getDeviceType(userAgent);
         
         // Get IP and lookup country
-        const ipAddress = req.ip || req.connection.remoteAddress || '';
-        const cleanIP = ipAddress.replace('::ffff:', ''); // Remove IPv6 prefix
+        let ipAddress = req.headers['x-forwarded-for'] ||
+                        req.headers['x-real-ip'] ||
+                        req.connection.remoteAddress ||
+                        req.socket.remoteAddress ||
+                        req.ip ||
+                        '';
+        
+        // Handle multiple IPs in x-forwarded-for (take the first one)
+        if (ipAddress.includes(',')) {
+            ipAddress = ipAddress.split(',')[0].trim();
+        }
+        
+        // Remove IPv6 prefix
+        const cleanIP = ipAddress.replace('::ffff:', '').replace('::1', '127.0.0.1');
+        
+        // Lookup geolocation
         const geo = geoip.lookup(cleanIP);
         
-        const country = geo ? geo.country : 'Unknown';
-        const countryCode = geo ? geo.country : 'XX';
+        let country = 'Unknown';
+        let countryCode = 'XX';
+        
+        if (geo && geo.country) {
+            country = geo.country;
+            countryCode = geo.country;
+        } else if (cleanIP === '127.0.0.1' || cleanIP === 'localhost') {
+            country = 'Local';
+            countryCode = 'LC';
+        }
         
         // Create click record (async, don't wait)
         LinkClick.create({
@@ -188,6 +210,7 @@ router.get('/', async (req, res) => {
             deviceStats,
             quickStats,
             csrfToken: req.session.csrfToken,
+            baseUrl: `${req.protocol}://${req.get('host')}`,
             pagination: {
                 page,
                 limit,

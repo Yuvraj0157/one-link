@@ -4,6 +4,13 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
 <div class="container">
+    
+    <!-- Back to Dashboard Button -->
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/dashboard" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
     <h1 style="padding-top: 15px; text-align: center; font-family: 'PT Sans', sans-serif;">Analytics Dashboard</h1>
     
     <!-- Summary Cards -->
@@ -232,6 +239,7 @@
                                         <th>Rank</th>
                                         <th>Link Title</th>
                                         <th>URL</th>
+                                        <th>Tracking URL</th>
                                         <th>Clicks</th>
                                         <th data-bs-toggle="tooltip" data-bs-placement="top"
                                             title="Click-Through Rate: Percentage of profile visitors who clicked this link">
@@ -266,6 +274,27 @@
                                                 <a href="<%= link.url %>" target="_blank" style="font-size: 12px;">
                                                     <%= link.url.substring(0, 40) %><%= link.url.length > 40 ? '...' : '' %>
                                                 </a>
+                                            </td>
+                                            <td>
+                                                <%
+                                                // link._id from aggregate is the linkId
+                                                const trackingUrl = `${baseUrl}/track/link/${user.username}/${link._id}`;
+                                                const urlId = link._id.toString();
+                                                %>
+                                                <div class="input-group input-group-sm" style="max-width: 400px;">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           value="<%= trackingUrl %>"
+                                                           readonly
+                                                           id="trackingUrl-<%= urlId %>"
+                                                           style="font-size: 11px;">
+                                                    <button class="btn btn-outline-secondary btn-sm copy-tracking-btn"
+                                                            type="button"
+                                                            data-link-id="<%= urlId %>"
+                                                            data-bs-toggle="tooltip"
+                                                            title="Copy tracking URL">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                             <td><span class="badge bg-success"><%= link.clicks %></span></td>
                                             <td>
@@ -554,6 +583,74 @@ const clicksChart = new Chart(ctx, {
 // View link details function
 function viewLinkDetails(linkId) {
     window.location.href = `/analytics/link/${linkId}`;
+}
+
+// Copy tracking URL to clipboard - CSP compliant version
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all copy buttons
+    const copyButtons = document.querySelectorAll('.copy-tracking-btn');
+    
+    copyButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const linkId = this.getAttribute('data-link-id');
+            const input = document.getElementById('trackingUrl-' + linkId);
+            
+            if (!input) {
+                console.error('Input element not found for linkId:', linkId);
+                alert('Failed to copy URL. Element not found.');
+                return;
+            }
+            
+            const textToCopy = input.value;
+            console.log('Attempting to copy:', textToCopy);
+            
+            // Copy to clipboard using modern API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(function() {
+                    console.log('Copy successful!');
+                    showCopySuccess(btn);
+                }).catch(function(err) {
+                    console.error('Clipboard API failed:', err);
+                    fallbackCopy(input, btn);
+                });
+            } else {
+                fallbackCopy(input, btn);
+            }
+        });
+    });
+});
+
+// Show success feedback
+function showCopySuccess(btn) {
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i>';
+    btn.classList.remove('btn-outline-secondary');
+    btn.classList.add('btn-success');
+    
+    setTimeout(function() {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+
+// Fallback copy method for older browsers
+function fallbackCopy(input, btn) {
+    try {
+        input.select();
+        input.setSelectionRange(0, 99999);
+        const successful = document.execCommand('copy');
+        
+        if (successful) {
+            console.log('Fallback copy successful!');
+            showCopySuccess(btn);
+        } else {
+            throw new Error('execCommand failed');
+        }
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
+        alert('Failed to copy URL. Please copy manually: ' + input.value);
+    }
 }
 </script>
 
