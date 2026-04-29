@@ -1,183 +1,371 @@
-<!-- include header -->
 <%-include('include/_header')%>
-<!-- /include header -->
- 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
-
-<style>
-    #handle_form {
-        display: flex;
-        flex-direction: column;
-        width: 55%;
-        margin-top: 2px;
-        margin-bottom: 23px;
-    }
+<div class="container" style="max-width: 900px;">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="/dashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
     
-    .form_ {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-globe me-2"></i>Social Handles</h2>
+        <p>Connect your social media accounts and contact information</p>
+    </div>
     
-    .form_elem {
-        margin: 4px 0px;
-    }
-    
-    @media screen and (max-width: 600px) {
-        #handle_form {
-            width: 80%;
-        }
-    }
-    
-    .form-label {
-        margin-bottom: 0.15rem;
-    }
-    
-</style>
-
- <!-- Main Site -->
- <main id="site-main">
-    <div class="container">
-        <div class="box-nav d-flex justify-between">
-           <div class="filter">
-               <a href="/dashboard" style="text-decoration: none;"><i class="fas fa-angle-double-left"></i> Dashboard</a>
-           </div>
-        </div>
-        <div class="form-title text-center">
-            <h2 class="text-dark">Handles</h2>
-        </div>
-        <div class="form_">
+    <!-- Form Card -->
+    <div class="card">
+        <div class="card-body">
             <form id="handle_form">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <div class="form_elem">
-                    <label for="exampleInputEmail1" class="form-label">Email address</label>
-                    <input type="email" placeholder="your@emailaddress.com" class="form-control" id="email_url" name="email" value="<%= data.handles.email || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="facebook_page_url" class="form-label">Facebook Page</label>
-                    <input type="url" placeholder="https://facebook.com/facebookpageurl" class="form-control" id="facebook_url" name="facebook" value="<%= data.handles.facebook || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="twitter_link" class="form-label">Twitter</label>
-                    <input type="url" placeholder="https://X.com/...." class="form-control" id="twitter_url" name="twitter" value="<%= data.handles.twitter || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="instagram_username" class="form-label">Instagram</label>
-                    <input type="url" placeholder="https://..." class="form-control" id="instagram_url" name="instagram" value="<%= data.handles.instagram || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="youTube_url" class="form-label">YouTube</label>
-                    <input type="url" placeholder="https://youtube.com/channel/youtubechannelurl" class="form-control" id="youtube_url" name="youtube" value="<%= data.handles.youtube || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="linkedin_url" class="form-label">Linkedin</label>
-                    <input type="url" placeholder="https://linkedin.com/in/username" class="form-control" id="linkedin_url" name="linkedin" value="<%= data.handles.linkedin || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="whatsapp_url" class="form-label">WhatsApp</label>
-                    <input type="url" placeholder="https://..." class="form-control" id="whatsapp_url" name="whatsapp" value="<%= data.handles.whatsapp || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="telegram_url" class="form-label">Telegram</label>
-                    <input type="url" placeholder="https://t.me/" class="form-control" id="telegram_url" name="telegram" value="<%= data.handles.telegram || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="signal_url" class="form-label">Signal</label>
-                    <input type="url" placeholder="https://signal.group/" class="form-control" id="signal_url" name="signal" value="<%= data.handles.signal || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="discord_url" class="form-label">Discord</label>
-                    <input type="url" placeholder="https://discord.com/invite/yourserver" class="form-control" id="discord_url" name="discord" value="<%= data.handles.discord || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="pinterest_url" class="form-label">Pinterest</label>
-                    <input type="url" placeholder="https://pinterest.com" class="form-control" id="pinterest_url" name="pinterest" value="<%= data.handles.pinterest || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="tiktok_username" class="form-label">TikTok</label>
-                    <input type="url" placeholder="https://..." class="form-control" id="tiktok_url" name="tiktok" value="<%= data.handles.tiktok || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="spotify_url" class="form-label">Spotify</label>
-                    <input type="url" placeholder="open.spotifi.com/artist/artistname" class="form-control" id="spotify_url" name="spotify" value="<%= data.handles.spotify || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="snapchat_url" class="form-label">Snapchat</label>
-                    <input type="url" placeholder="https://snapchat.com/add/yourusername" class="form-control" id="snapchat_url" name="snapchat" value="<%= data.handles.snapchat || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="Payment_url" class="form-label">Payment</label>
-                    <input type="url" placeholder="https://venmo.com/yourusername" class="form-control" id="payment_url" name="payment" value="<%= data.handles.payment || '' %>">
-                </div>
-                <div class="form_elem">
-                    <label for="github_url" class="form-label">Github</label>
-                    <input type="url" placeholder="https://..." class="form-control" id="github_url" name="github" value="<%= data.handles.github || '' %>">
+                <div class="row">
+                    <!-- Email -->
+                    <div class="col-md-6 mb-3">
+                        <label for="email_url" class="form-label">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="email_url" 
+                               name="email" 
+                               placeholder="your@email.com"
+                               value="<%= data.handles.email || '' %>">
+                    </div>
+                    
+                    <!-- Facebook -->
+                    <div class="col-md-6 mb-3">
+                        <label for="facebook_url" class="form-label">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="facebook_url" 
+                               name="facebook" 
+                               placeholder="https://facebook.com/yourpage"
+                               value="<%= data.handles.facebook || '' %>">
+                    </div>
+                    
+                    <!-- Twitter -->
+                    <div class="col-md-6 mb-3">
+                        <label for="twitter_url" class="form-label">
+                            <i class="fab fa-twitter"></i> Twitter / X
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="twitter_url" 
+                               name="twitter" 
+                               placeholder="https://x.com/username"
+                               value="<%= data.handles.twitter || '' %>">
+                    </div>
+                    
+                    <!-- Instagram -->
+                    <div class="col-md-6 mb-3">
+                        <label for="instagram_url" class="form-label">
+                            <i class="fab fa-instagram"></i> Instagram
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="instagram_url" 
+                               name="instagram" 
+                               placeholder="https://instagram.com/username"
+                               value="<%= data.handles.instagram || '' %>">
+                    </div>
+                    
+                    <!-- YouTube -->
+                    <div class="col-md-6 mb-3">
+                        <label for="youtube_url" class="form-label">
+                            <i class="fab fa-youtube"></i> YouTube
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="youtube_url" 
+                               name="youtube" 
+                               placeholder="https://youtube.com/@channel"
+                               value="<%= data.handles.youtube || '' %>">
+                    </div>
+                    
+                    <!-- LinkedIn -->
+                    <div class="col-md-6 mb-3">
+                        <label for="linkedin_url" class="form-label">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="linkedin_url" 
+                               name="linkedin" 
+                               placeholder="https://linkedin.com/in/username"
+                               value="<%= data.handles.linkedin || '' %>">
+                    </div>
+                    
+                    <!-- WhatsApp -->
+                    <div class="col-md-6 mb-3">
+                        <label for="whatsapp_url" class="form-label">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="whatsapp_url" 
+                               name="whatsapp" 
+                               placeholder="https://wa.me/1234567890"
+                               value="<%= data.handles.whatsapp || '' %>">
+                    </div>
+                    
+                    <!-- Telegram -->
+                    <div class="col-md-6 mb-3">
+                        <label for="telegram_url" class="form-label">
+                            <i class="fab fa-telegram"></i> Telegram
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="telegram_url" 
+                               name="telegram" 
+                               placeholder="https://t.me/username"
+                               value="<%= data.handles.telegram || '' %>">
+                    </div>
+                    
+                    <!-- Signal -->
+                    <div class="col-md-6 mb-3">
+                        <label for="signal_url" class="form-label">
+                            <i class="fas fa-comment-dots"></i> Signal
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="signal_url" 
+                               name="signal" 
+                               placeholder="https://signal.group/..."
+                               value="<%= data.handles.signal || '' %>">
+                    </div>
+                    
+                    <!-- Discord -->
+                    <div class="col-md-6 mb-3">
+                        <label for="discord_url" class="form-label">
+                            <i class="fab fa-discord"></i> Discord
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="discord_url" 
+                               name="discord" 
+                               placeholder="https://discord.gg/invite"
+                               value="<%= data.handles.discord || '' %>">
+                    </div>
+                    
+                    <!-- Pinterest -->
+                    <div class="col-md-6 mb-3">
+                        <label for="pinterest_url" class="form-label">
+                            <i class="fab fa-pinterest"></i> Pinterest
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="pinterest_url" 
+                               name="pinterest" 
+                               placeholder="https://pinterest.com/username"
+                               value="<%= data.handles.pinterest || '' %>">
+                    </div>
+                    
+                    <!-- TikTok -->
+                    <div class="col-md-6 mb-3">
+                        <label for="tiktok_url" class="form-label">
+                            <i class="fab fa-tiktok"></i> TikTok
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="tiktok_url" 
+                               name="tiktok" 
+                               placeholder="https://tiktok.com/@username"
+                               value="<%= data.handles.tiktok || '' %>">
+                    </div>
+                    
+                    <!-- Spotify -->
+                    <div class="col-md-6 mb-3">
+                        <label for="spotify_url" class="form-label">
+                            <i class="fab fa-spotify"></i> Spotify
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="spotify_url" 
+                               name="spotify" 
+                               placeholder="https://open.spotify.com/artist/..."
+                               value="<%= data.handles.spotify || '' %>">
+                    </div>
+                    
+                    <!-- Snapchat -->
+                    <div class="col-md-6 mb-3">
+                        <label for="snapchat_url" class="form-label">
+                            <i class="fab fa-snapchat"></i> Snapchat
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="snapchat_url" 
+                               name="snapchat" 
+                               placeholder="https://snapchat.com/add/username"
+                               value="<%= data.handles.snapchat || '' %>">
+                    </div>
+                    
+                    <!-- Payment -->
+                    <div class="col-md-6 mb-3">
+                        <label for="payment_url" class="form-label">
+                            <i class="fas fa-dollar-sign"></i> Payment
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="payment_url" 
+                               name="payment" 
+                               placeholder="https://venmo.com/username"
+                               value="<%= data.handles.payment || '' %>">
+                    </div>
+                    
+                    <!-- GitHub -->
+                    <div class="col-md-6 mb-3">
+                        <label for="github_url" class="form-label">
+                            <i class="fab fa-github"></i> GitHub
+                        </label>
+                        <input type="url" 
+                               class="form-control" 
+                               id="github_url" 
+                               name="github" 
+                               placeholder="https://github.com/username"
+                               value="<%= data.handles.github || '' %>">
+                    </div>
                 </div>
                 
-                <button id="save_btn" style="margin-top: 30px;margin-bottom: 50px;height: 50px;" type="button" class="btn">Save</button>
+                <div class="d-grid gap-2 mt-4">
+                    <button id="save_btn" type="button" class="btn btn-primary btn-lg">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="/dashboard" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
             </form>
         </div>
     </div>
-</main>
-<!-- /Main Site -->
- 
+    
+    <!-- Help Card -->
+    <div class="card mt-4 border-info">
+        <div class="card-body">
+            <h6 class="card-title"><i class="fas fa-info-circle text-info"></i> Tips</h6>
+            <ul class="mb-0 small">
+                <li>Only filled handles will appear on your profile</li>
+                <li>Make sure to include the full URL (https://...)</li>
+                <li>Changes are saved only when you click "Save Changes"</li>
+                <li>Leave fields empty to remove them from your profile</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                <span id="successMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span id="errorMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+    
+    <div id="infoToast" class="toast align-items-center text-white bg-info border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-info-circle me-2"></i>
+                <span id="infoMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-$(document).ready(function() {
-    const form = $('#handle_form');
-    const saveButton = $('#save_btn');
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('handle_form');
+    const saveButton = document.getElementById('save_btn');
     const originalValues = {};
 
+    // Toast helper function
+    function showToast(type, message) {
+        const toastEl = document.getElementById(type + 'Toast');
+        const messageEl = document.getElementById(type + 'Message');
+        messageEl.textContent = message;
+        const toast = new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+        toast.show();
+    }
+
     // Save the original values of the input fields
-    form.find('input').each(function() {
-        originalValues[this.name] = this.value;
+    form.querySelectorAll('input').forEach(function(input) {
+        originalValues[input.name] = input.value;
     });
 
-    saveButton.click(function(event) {
+    saveButton.addEventListener('click', function(event) {
         event.preventDefault();
         const changedData = {};
 
         // Check for changed values
-        form.find('input').each(function() {
-            if (this.value !== originalValues[this.name]) {
-                changedData[this.name] = this.value;
+        form.querySelectorAll('input').forEach(function(input) {
+            if (input.value !== originalValues[input.name]) {
+                changedData[input.name] = input.value;
             }
         });
 
         // Send changed data to the backend
         if (Object.keys(changedData).length > 0) {
-            const csrfToken = $('input[name="_csrf"]').val();
-            changedData._csrf = csrfToken;
-            $.ajax({
-                url: '/dashboard/handles',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(changedData),
-                success: function(data) {
-                    if (data.status === 'success') {
-                        swal('Success', data.message, 'success')
-                        .then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        swal('Error', data.message, 'error')
-                        .then(() => {
-                            location.reload();
-                        });
-                    }
+            // Disable button and show loading state
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            fetch('/dashboard/handles', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                error: function(xhr, status, error) {
-                    swal('Error', 'An error occurred while saving changes.', 'error');
+                body: JSON.stringify(changedData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Re-enable button
+                saveButton.disabled = false;
+                saveButton.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                
+                if (data.status === 'success') {
+                    showToast('success', data.message);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast('error', data.message);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
                 }
+            })
+            .catch(error => {
+                // Re-enable button
+                saveButton.disabled = false;
+                saveButton.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                showToast('error', 'An error occurred while saving changes.');
             });
         } else {
-            swal('No changes', 'You have not made any changes', 'info');
+            showToast('info', 'No changes detected');
         }
     });
 });
 </script>
 
-<!-- include footer -->
 <%-include('include/_footer')%>
-<!-- /include footer -->

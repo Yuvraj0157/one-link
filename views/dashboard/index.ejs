@@ -1,70 +1,786 @@
 <%-include('include/_header')%>
 
 <div class="container">
-    <h1 style="padding-top: 15px; text-align: center; font-family: 'PT Sans', sans-serif;;">Dashboard</h1>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1><i class="fas fa-th-large me-2"></i>Dashboard</h1>
+        <p>Manage your links and profile settings</p>
+    </div>
+    
+    <!-- Quick Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stats-card" style="border-left: 4px solid #667eea;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Total Links</p>
+                            <h3 class="mb-0 fw-bold"><%= stats.totalLinks %></h3>
+                        </div>
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-link"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stats-card" style="border-left: 4px solid #28a745;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Active Links</p>
+                            <h3 class="mb-0 fw-bold"><%= stats.activeLinks %></h3>
+                        </div>
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stats-card" style="border-left: 4px solid #fa709a;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Profile Views</p>
+                            <h3 class="mb-0 fw-bold"><%= stats.totalViews %></h3>
+                        </div>
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stats-card" style="border-left: 4px solid #4facfe;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small">Clicks (30d)</p>
+                            <h3 class="mb-0 fw-bold"><%= stats.totalClicks %></h3>
+                        </div>
+                        <div class="stats-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="/dashboard/add-link" class="text-decoration-none">
+                <div class="card text-center h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="card-body">
+                        <i class="fas fa-link fa-2x mb-2"></i>
+                        <h5 class="card-title">New Link</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="/analytics" class="text-decoration-none">
+                <div class="card text-center h-100" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+                    <div class="card-body">
+                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                        <h5 class="card-title">Analytics</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="/dashboard/handles" class="text-decoration-none">
+                <div class="card text-center h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                    <div class="card-body">
+                        <i class="fas fa-globe fa-2x mb-2"></i>
+                        <h5 class="card-title">Handles</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <a href="/appearance" class="text-decoration-none">
+                <div class="card text-center h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <div class="card-body">
+                        <i class="fas fa-user fa-2x mb-2"></i>
+                        <h5 class="card-title">Appearance</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Achievement Badges Section - Compact & Collapsible -->
+    <div class="card mb-4">
+        <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer;"
+             data-bs-toggle="collapse"
+             data-bs-target="#achievementsCollapse"
+             aria-expanded="false"
+             aria-controls="achievementsCollapse">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 text-white">
+                    <i class="fas fa-trophy me-2"></i>Your Achievements
+                    <span class="badge bg-light text-dark ms-2">
+                        <%= [
+                            stats.totalLinks >= 1,
+                            stats.totalLinks >= 10,
+                            stats.totalViews >= 100,
+                            stats.totalClicks >= 50,
+                            stats.totalViews >= 1000,
+                            stats.totalClicks >= 500,
+                            stats.totalLinks >= 25,
+                            (stats.totalViews >= 5000 && stats.totalClicks >= 1000)
+                        ].filter(Boolean).length %>/8 Unlocked
+                    </span>
+                </h6>
+                <i class="fas fa-chevron-down text-white" id="achievementChevron"></i>
+            </div>
+        </div>
+        <div class="collapse" id="achievementsCollapse">
+            <div class="card-body">
+                <div class="row g-2">
+                    <!-- First Link Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= stats.totalLinks >= 1 ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">First Link</h6>
+                                <% if (stats.totalLinks >= 1) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm">0/1</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Link Master Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= stats.totalLinks >= 10 ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">Link Master</h6>
+                                <% if (stats.totalLinks >= 10) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm"><%= stats.totalLinks %>/10</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Popular Profile Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= stats.totalViews >= 100 ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">Popular</h6>
+                                <% if (stats.totalViews >= 100) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm"><%= stats.totalViews %>/100</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Click Magnet Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= stats.totalClicks >= 50 ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-mouse-pointer"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">Click Magnet</h6>
+                                <% if (stats.totalClicks >= 50) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm"><%= stats.totalClicks %>/50</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Influencer Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= stats.totalViews >= 1000 ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">Influencer</h6>
+                                <% if (stats.totalViews >= 1000) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm"><%= Math.floor(stats.totalViews/10) %>/100</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Viral Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= stats.totalClicks >= 500 ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">Viral</h6>
+                                <% if (stats.totalClicks >= 500) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm"><%= stats.totalClicks %>/500</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Completionist Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= stats.totalLinks >= 25 ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">Completionist</h6>
+                                <% if (stats.totalLinks >= 25) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm"><%= stats.totalLinks %>/25</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Legend Badge -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="achievement-badge-compact <%= (stats.totalViews >= 5000 && stats.totalClicks >= 1000) ? 'unlocked' : 'locked' %>">
+                            <div class="badge-icon-compact">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="badge-info">
+                                <h6 class="badge-title-compact">Legend</h6>
+                                <% if (stats.totalViews >= 5000 && stats.totalClicks >= 1000) { %>
+                                    <span class="badge bg-success badge-sm">✓</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary badge-sm text-nowrap" style="font-size: 0.65rem;">
+                                        <%= Math.floor(stats.totalViews/100) %>/50
+                                    </span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Links Table -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Your Links</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <% if(profile.links && profile.links.length > 1) { %>
+                        <small class="text-muted">
+                            <i class="fas fa-grip-vertical me-1"></i>Drag to reorder
+                        </small>
+                    <% } %>
+                </div>
+            </div>
+            <!-- Bulk Actions Bar (hidden by default) -->
+            <div id="bulkActionsBar" class="mt-3" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                    <span id="selectedCount" class="fw-bold">0 selected</span>
+                    <div class="btn-group">
+                        <button type="button" id="bulkArchiveBtn" class="btn btn-sm btn-warning">
+                            <i class="fas fa-archive me-1"></i>Archive Selected
+                        </button>
+                        <button type="button" id="deselectAllBtn" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-times me-1"></i>Deselect All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <% if(profile.links && profile.links.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" id="selectAll" class="form-check-input">
+                                </th>
+                                <th style="width: 40px;"></th>
+                                <th style="width: 60px;">#</th>
+                                <th style="width: 40px;"></th>
+                                <th>Title</th>
+                                <th>URL</th>
+                                <th style="width: 120px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sortable-links">
+                            <%
+                            // Calculate the starting index for this page
+                            const startIndex = profile.pagination ? ((profile.pagination.page - 1) * profile.pagination.limit) : 0;
+                            %>
+                            <% for(const [index, link] of profile.links.entries()) { %>
+                                <tr data-link-id="<%= link._id %>" class="sortable-row">
+                                    <td>
+                                        <input type="checkbox" class="form-check-input link-checkbox" data-link-id="<%= link._id %>" data-link-title="<%= link.title %>">
+                                    </td>
+                                    <td class="drag-handle" style="cursor: move;">
+                                        <i class="fas fa-grip-vertical text-muted"></i>
+                                    </td>
+                                    <td><%= startIndex + index + 1 %></td>
+                                    <td>
+                                        <div class="link-favicon">
+                                            <%
+                                            // Extract and validate domain from URL
+                                            let domain = '';
+                                            let isValidUrl = false;
+                                            try {
+                                                const url = new URL(link.url);
+                                                domain = url.hostname;
+                                                // Check if it's a valid domain (has at least one dot and valid TLD)
+                                                isValidUrl = domain.includes('.') && domain.length > 3;
+                                            } catch (e) {
+                                                isValidUrl = false;
+                                            }
+                                            %>
+                                            <% if (isValidUrl) { %>
+                                                <img src="https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=<%= encodeURIComponent(link.url) %>&size=32"
+                                                     alt="favicon"
+                                                     class="favicon-img"
+                                                     data-fallback="true">
+                                                <div class="favicon-fallback" style="display: none;">
+                                                    <i class="fas fa-link"></i>
+                                                </div>
+                                            <% } else { %>
+                                                <div class="favicon-fallback" style="display: flex;">
+                                                    <i class="fas fa-link"></i>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                    <td><strong><%= link.title %></strong></td>
+                                    <td>
+                                        <a href="<%= link.url %>" target="_blank" class="text-decoration-none" style="font-size: 14px;">
+                                            <%= link.url.length > 50 ? link.url.substring(0, 50) + '...' : link.url %>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="/dashboard/update-link?id=<%= link._id %>" 
+                                           class="btn btn-sm btn-primary" 
+                                           title="Edit link"
+                                           data-bs-toggle="tooltip">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-warning archive-link-btn" 
+                                                data-link-id="<%= link._id %>"
+                                                data-link-title="<%= link.title %>"
+                                                title="Archive link"
+                                                data-bs-toggle="tooltip">
+                                            <i class="fas fa-archive"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination Controls - Always show if there are links -->
+                <% if(profile.pagination && profile.pagination.totalLinks > 0) { %>
+                    <div class="mt-3 pt-3 border-top">
+                        <div class="row align-items-center">
+                            <!-- Page Size Selector -->
+                            <div class="col-md-6 mb-2 mb-md-0">
+                                <div class="d-flex align-items-center">
+                                    <label for="pageSize" class="me-2 mb-0">Items per page:</label>
+                                    <select id="pageSize" class="form-select form-select-sm" style="width: auto;">
+                                        <option value="10" <%= profile.pagination.limit === 10 ? 'selected' : '' %>>10</option>
+                                        <option value="25" <%= profile.pagination.limit === 25 ? 'selected' : '' %>>25</option>
+                                        <option value="50" <%= profile.pagination.limit === 50 ? 'selected' : '' %>>50</option>
+                                        <option value="100" <%= profile.pagination.limit === 100 ? 'selected' : '' %>>100</option>
+                                    </select>
+                                    <span class="ms-3 text-muted">
+                                        Showing <%= ((profile.pagination.page - 1) * profile.pagination.limit) + 1 %>-<%= Math.min(profile.pagination.page * profile.pagination.limit, profile.pagination.totalLinks) %>
+                                        of <%= profile.pagination.totalLinks %> links
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Pagination Buttons - Only show if multiple pages -->
+                            <% if(profile.pagination.totalPages > 1) { %>
+                            <div class="col-md-6">
+                                <nav aria-label="Page navigation">
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item <%= !profile.pagination.hasPrev ? 'disabled' : '' %>">
+                                    <a class="page-link" href="?page=1&limit=<%= profile.pagination.limit %>">
+                                        <span>&laquo;&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item <%= !profile.pagination.hasPrev ? 'disabled' : '' %>">
+                                    <a class="page-link" href="?page=<%= profile.pagination.page - 1 %>&limit=<%= profile.pagination.limit %>">
+                                        <span>&laquo;</span>
+                                    </a>
+                                </li>
+                                
+                                <%
+                                const currentPage = profile.pagination.page;
+                                const totalPages = profile.pagination.totalPages;
+                                let startPage = Math.max(1, currentPage - 2);
+                                let endPage = Math.min(totalPages, currentPage + 2);
+                                
+                                if (currentPage <= 3) {
+                                    endPage = Math.min(5, totalPages);
+                                }
+                                if (currentPage >= totalPages - 2) {
+                                    startPage = Math.max(1, totalPages - 4);
+                                }
+                                
+                                for (let i = startPage; i <= endPage; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>&limit=<%= profile.pagination.limit %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                
+                                <li class="page-item <%= !profile.pagination.hasNext ? 'disabled' : '' %>">
+                                    <a class="page-link" href="?page=<%= profile.pagination.page + 1 %>&limit=<%= profile.pagination.limit %>">
+                                        <span>&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item <%= !profile.pagination.hasNext ? 'disabled' : '' %>">
+                                    <a class="page-link" href="?page=<%= profile.pagination.totalPages %>&limit=<%= profile.pagination.limit %>">
+                                        <span>&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% } %>
+            <% } else { %>
+                <div class="empty-state text-center py-5">
+                    <!-- Illustration -->
+                    <div class="empty-state-icon mb-4">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="60" cy="60" r="60" fill="#f8f9fa"/>
+                            <path d="M45 50C45 47.2386 47.2386 45 50 45H70C72.7614 45 75 47.2386 75 50V70C75 72.7614 72.7614 75 70 75H50C47.2386 75 45 72.7614 45 70V50Z" fill="#e9ecef"/>
+                            <circle cx="60" cy="60" r="8" fill="#667eea"/>
+                            <path d="M52 60H68M60 52V68" stroke="#667eea" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Message -->
+                    <h3 class="mb-2">No Links Yet</h3>
+                    <p class="text-muted mb-4">Start building your link collection and share it with the world!</p>
+                    
+                    <!-- CTA Button -->
+                    <a href="/dashboard/add-link" class="btn btn-primary btn-lg mb-4">
+                        <i class="fas fa-plus me-2"></i>Create Your First Link
+                    </a>
+                    
+                    <!-- Quick Tips -->
+                    <div class="empty-state-tips mt-4 pt-4 border-top">
+                        <h6 class="text-muted mb-3">💡 Quick Tips to Get Started:</h6>
+                        <div class="row text-start">
+                            <div class="col-md-4 mb-3">
+                                <div class="tip-card p-3">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-link text-primary me-2 mt-1"></i>
+                                        <div>
+                                            <strong class="d-block mb-1">Add Links</strong>
+                                            <small class="text-muted">Share your social media, website, or any URL</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="tip-card p-3">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-palette text-primary me-2 mt-1"></i>
+                                        <div>
+                                            <strong class="d-block mb-1">Customize Theme</strong>
+                                            <small class="text-muted">Choose from 18+ beautiful themes</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="tip-card p-3">
+                                    <div class="d-flex align-items-start">
+                                        <i class="fas fa-share-alt text-primary me-2 mt-1"></i>
+                                        <div>
+                                            <strong class="d-block mb-1">Share Profile</strong>
+                                            <small class="text-muted">Get your unique OneLink URL to share</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
 </div>
 
- <!-- Main Site -->
- <main id="site-main">
-    <div class="container">
-       <div class="box-nav d-flex justify-between">
-           <a href="/dashboard/add-link" class="border-shadow">
-               <span class="text-gradient"><i class="fas fa-link"></i> New link</span>
-           </a>
-
-           <a href="/analytics" class="border-shadow">
-            <span class="text-gradient">Analytics <i class="fas fa-chart-line"></i></span>
-           </a>
-
-           <a href="/dashboard/handles" class="border-shadow">
-            <span class="text-gradient">Handles <i class="fas fa-globe"></i></span>
-           </a>
-
-           <a href="/appearance" class="border-shadow">
-            <span class="text-gradient"> Appearance <i class="fas fa-user"></i></span>
-           </a>
-       </div>
-
-       <table class="table">
-           <thead class="thead-dark">
-               <tr>
-                   <th>ID</th>
-                   <th>Title</th>
-                   <th>URL</th>
-                   <th>Action</th>
-               </tr>
-           </thead>
-           <tbody>
-                <% for(const [index, link] of profile.links.entries()) { %>
-                    <tr>
-                        <td><%= index + 1 %></td>
-                        <td><%= link.title %></td>
-                        <td><a style="text-decoration: none; color: black;" target="_blank" href="<%= link.url %>"><%= link.url %></a></td>
-                        <td>
-                            <a href="/dashboard/update-link?id=<%= link._id %>" class="btn border-shadow update">
-                                <span class="text-gradient"><i class="fas fa-pencil-alt"></i></span>
-                            </a>
-                            <form action="/dashboard/delete-link" method="POST" style="display: inline;">
-                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                <input type="hidden" name="id" value="<%= link._id %>">
-                                <button type="submit" class="btn border-shadow delete" onclick="return confirm('Are you sure you want to delete this link?')">
-                                    <span class="text-gradient"><i class="fas fa-times"></i></span>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    <% } %>
-           </tbody>
-       </table>
-       <% if(profile.links.length==0){%>
-            <tr style="text-align: center;">
-                <h3>No links here . Please add a new link.</h3>
-            </tr>
-        <%}%>
+<!-- Custom Archive Confirmation Modal -->
+<div class="modal fade" id="archiveModal" tabindex="-1" aria-labelledby="archiveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="archiveModalLabel">
+                    <i class="fas fa-archive"></i> Archive Link
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to archive "<strong id="archiveLinkTitle"></strong>"?</p>
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle"></i> The link will be hidden from your profile but can be restored later from the Analytics page.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="archiveForm" method="POST" action="/dashboard/delete-link" style="display: inline;">
+                    <input type="hidden" name="id" id="archiveLinkId">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-archive"></i> Archive Link
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
-</main>
-<!-- /Main Site -->
+</div>
 
-<!-- include footer -->
-<!-- <%-include('include/_footer')%> -->
-<!-- /include footer -->
+<!-- Bootstrap JS is loaded in footer -->
+
+<!-- SortableJS for drag & drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<script>
+// CSP compliant event handlers
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Page size change
+    const pageSizeSelector = document.getElementById('pageSize');
+    
+    if (pageSizeSelector) {
+        pageSizeSelector.addEventListener('change', function() {
+            const newLimit = this.value;
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('limit', newLimit);
+            urlParams.set('page', '1');
+            window.location.search = urlParams.toString();
+        });
+    }
+    
+    // Archive link modal
+    const archiveModal = new bootstrap.Modal(document.getElementById('archiveModal'));
+    const archiveButtons = document.querySelectorAll('.archive-link-btn');
+    
+    archiveButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const linkId = this.getAttribute('data-link-id');
+            const linkTitle = this.getAttribute('data-link-title');
+            
+            document.getElementById('archiveLinkId').value = linkId;
+            document.getElementById('archiveLinkTitle').textContent = linkTitle;
+            
+            archiveModal.show();
+        });
+    });
+    
+    // Drag & Drop Reordering
+    const sortableList = document.getElementById('sortable-links');
+    if (sortableList) {
+        const sortable = new Sortable(sortableList, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            dragClass: 'sortable-drag',
+            onEnd: function(evt) {
+                // Get new order of link IDs
+                const rows = sortableList.querySelectorAll('tr[data-link-id]');
+                const newOrder = Array.from(rows).map(row => row.getAttribute('data-link-id'));
+                
+                // Save new order to backend
+                fetch('/dashboard/reorder-links', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ order: newOrder })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update row numbers
+                        rows.forEach((row, index) => {
+                            const numberCell = row.querySelector('td:nth-child(2)');
+                            if (numberCell) {
+                                numberCell.textContent = index + 1;
+                            }
+                        });
+                        
+                        // Show success toast (optional)
+                        console.log('Links reordered successfully');
+                    } else {
+                        console.error('Failed to reorder links');
+                        // Reload page to restore original order
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Reload page to restore original order
+                    location.reload();
+                });
+            }
+        });
+    }
+    
+    // Bulk Actions
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const linkCheckboxes = document.querySelectorAll('.link-checkbox');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const bulkArchiveBtn = document.getElementById('bulkArchiveBtn');
+    const deselectAllBtn = document.getElementById('deselectAllBtn');
+    
+    function updateBulkActionsBar() {
+        const selectedCheckboxes = document.querySelectorAll('.link-checkbox:checked');
+        const count = selectedCheckboxes.length;
+        
+        if (count > 0) {
+            bulkActionsBar.style.display = 'block';
+            selectedCountSpan.textContent = `${count} selected`;
+        } else {
+            bulkActionsBar.style.display = 'none';
+        }
+        
+        // Update select all checkbox state
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count === linkCheckboxes.length && count > 0;
+            selectAllCheckbox.indeterminate = count > 0 && count < linkCheckboxes.length;
+        }
+    }
+    
+    // Select all checkbox
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            linkCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActionsBar();
+        });
+    }
+    
+    // Individual checkboxes
+    linkCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActionsBar);
+    });
+    
+    // Deselect all button
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function() {
+            linkCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+            }
+            updateBulkActionsBar();
+        });
+    }
+    
+    // Bulk archive button
+    if (bulkArchiveBtn) {
+        bulkArchiveBtn.addEventListener('click', function() {
+            const selectedCheckboxes = document.querySelectorAll('.link-checkbox:checked');
+            const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-link-id'));
+            const selectedTitles = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-link-title'));
+            
+            if (selectedIds.length === 0) return;
+            
+            const confirmMessage = `Are you sure you want to archive ${selectedIds.length} link(s)?\n\n${selectedTitles.slice(0, 5).join('\n')}${selectedTitles.length > 5 ? '\n...' : ''}`;
+            
+            if (confirm(confirmMessage)) {
+                // Disable button
+                bulkArchiveBtn.disabled = true;
+                bulkArchiveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Archiving...';
+                
+                // Send bulk archive request
+                fetch('/dashboard/bulk-archive', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ids: selectedIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to archive links: ' + (data.message || 'Unknown error'));
+                        bulkArchiveBtn.disabled = false;
+                        bulkArchiveBtn.innerHTML = '<i class="fas fa-archive me-1"></i>Archive Selected';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to archive links. Please try again.');
+                    bulkArchiveBtn.disabled = false;
+                    bulkArchiveBtn.innerHTML = '<i class="fas fa-archive me-1"></i>Archive Selected';
+                });
+            }
+        });
+    }
+    
+    // Handle favicon errors (CSP-compliant) - suppress 404 errors
+    const faviconImages = document.querySelectorAll('.favicon-img[data-fallback="true"]');
+    faviconImages.forEach(img => {
+        img.addEventListener('error', function(e) {
+            // Prevent error from appearing in console
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.style.display = 'none';
+            const fallback = this.nextElementSibling;
+            if (fallback && fallback.classList.contains('favicon-fallback')) {
+                fallback.style.display = 'flex';
+            }
+        });
+    });
+});
+</script>
+
+<%-include('include/_footer')%>

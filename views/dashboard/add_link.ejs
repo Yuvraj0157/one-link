@@ -1,40 +1,76 @@
-<!-- include header -->
 <%-include('include/_header')%>
-<!-- /include header -->
 
- <!-- Main Site -->
- <main id="site-main">
-    <div class="container">
-       <div class="box-nav d-flex justify-between">
-           <div class="filter">
-               <a href="/dashboard"><i class="fas fa-angle-double-left"></i> Dashboard</a>
-           </div>
-       </div>
-        <div>
-            <h2 class="text-dark" style="text-align: center;">New Link</h2>
-            <p class="text-light" style="text-align: center;">Use the below form to create a new link</p>
-        </div>
-        <form action="/dashboard/add-link" method="POST" id="add_user">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <div class="new_user">
-                <div class="form-group">
-                    <label for="title" class="text-light">Title</label>
-                    <input type="text" name="title" value="" placeholder="" required>
-                </div>
-                <div class="form-group">
-                    <label for="url" class="text-light">URL</label>
-                    <input type="text" name="url" value="" placeholder="http://....." required>
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn text-dark update">Add</button>
-                </div>
-            </div>
-        </form>
+<div class="container" style="max-width: 800px;">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="/dashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
     </div>
-</main>
-<!-- /Main Site -->
+    
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-link me-2"></i>New Link</h2>
+        <p>Use the form below to create a new link for your profile</p>
+    </div>
+    
+    <!-- Form Card -->
+    <div class="card">
+        <div class="card-body">
+            <form action="/dashboard/add-link" method="POST" id="add_link_form">
+                <div class="mb-3">
+                    <label for="title" class="form-label">
+                        <i class="fas fa-heading"></i> Link Title <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="title" 
+                           name="title" 
+                           placeholder="e.g., My Portfolio, Instagram, YouTube Channel" 
+                           required>
+                    <small class="form-text text-muted">This will be displayed as the link name on your profile</small>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="url" class="form-label">
+                        <i class="fas fa-globe"></i> URL <span class="text-danger">*</span>
+                    </label>
+                    <input type="url" 
+                           class="form-control" 
+                           id="url" 
+                           name="url" 
+                           placeholder="https://example.com" 
+                           required>
+                    <small class="form-text text-muted">Enter the full URL including https://</small>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle"></i> Add Link
+                    </button>
+                    <a href="/dashboard" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Help Card -->
+    <div class="card mt-4 border-info">
+        <div class="card-body">
+            <h6 class="card-title"><i class="fas fa-info-circle text-info"></i> Tips</h6>
+            <ul class="mb-0 small">
+                <li>Use descriptive titles that clearly identify where the link goes</li>
+                <li>Make sure URLs start with https:// or http://</li>
+                <li>You can reorder links later from the dashboard</li>
+                <li>Links can be archived if you want to hide them temporarily</li>
+            </ul>
+        </div>
+    </div>
+</div>
 
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- include footer -->
 <%-include('include/_footer')%>
-<!-- /include footer -->
