@@ -126,7 +126,7 @@ router.get('/', async (req, res) => {
                 const badge = getPerformanceBadge(clickCount);
                 
                 return {
-                    ...link.toObject(),
+                    ...link,
                     clicks: clickCount,
                     ctr: ctr,
                     badge: badge
