@@ -3,169 +3,233 @@ const router = express.Router();
 
 const Profile = require('../models/profile');
 const User = require('../models/user');
-const {Link} = require('../models/link');
+const { Link } = require('../models/link');
+const logger = require('../utils/logger');
+const { AppError } = require('../middlewares/errorHandler');
 
+/**
+ * Dashboard home page
+ */
 router.get('/', async (req, res) => {
-    Profile.findOne({ userid: req.userID })
-    .then((profile) => {
-        User.findOne({ _id: req.userID })
-        .then((user) => {
-            res.render('dashboard/index', { user: user, profile: profile });
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).render('500');
-        });
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(500).render('500');
+    const profile = await Profile.findOne({ userid: req.userID });
+    const user = await User.findById(req.userID);
+    
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+    
+    logger.info('Dashboard accessed', {
+        correlationId: req.correlationId,
+        userId: req.userID,
     });
+    
+    res.render('dashboard/index', { user, profile });
 });
 
-router.get('/add-link', (req, res) => {
-    User.findOne({ _id: req.userID })
-    .then((user) => {
-        res.render('dashboard/add_link', { user: user });
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(500).render('500');
-    });
+/**
+ * Add link page
+ */
+router.get('/add-link', async (req, res) => {
+    const user = await User.findById(req.userID);
+    
+    if (!user) {
+        throw new AppError('User not found', 404);
+    }
+    
+    res.render('dashboard/add_link', { user });
 });
 
-router.post('/add-link', (req, res) => {
-    const { title, url } = req.body
+/**
+ * Add new link
+ */
+router.post('/add-link', async (req, res) => {
+    const { title, url } = req.body;
+    
+    if (!title || !url) {
+        throw new AppError('Title and URL are required', 400);
+    }
+    
     const newLink = new Link({ title, url });
-    Profile.updateOne({ userid: req.userID }, { $push: { links: newLink } })
-    .then(() => {
-        res.redirect('/dashboard');
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(500).render('500');
+    await Profile.updateOne(
+        { userid: req.userID },
+        { $push: { links: newLink } }
+    );
+    
+    logger.info('Link added', {
+        correlationId: req.correlationId,
+        userId: req.userID,
+        linkTitle: title,
     });
+    
+    res.redirect('/dashboard');
 });
 
+/**
+ * Update link page
+ */
+router.get('/update-link', async (req, res) => {
+    const { id } = req.query;
+    
+    if (!id) {
+        throw new AppError('Link ID is required', 400);
+    }
+    
+    const user = await User.findById(req.userID);
+    const profile = await Profile.findOne({ userid: req.userID });
+    
+    if (!user || !profile) {
+        throw new AppError('User or profile not found', 404);
+    }
+    
+    const link = profile.links.id(id);
+    
+    if (!link) {
+        throw new AppError('Link not found', 404);
+    }
+    
+    res.render('dashboard/update_link', { link, user });
+});
 
-router.get('/update-link',(req,res)=>{
-    User.findOne({ _id: req.userID })
-    .then((user) => {
-        Profile.findOne({userid:req.userID})
-        .then((profile)=>{
-            res.render('dashboard/update_link',{link:profile.links.id(req.query.id),user:user});
-        })
-        .catch((err)=>{
-            console.log(err);
-            res.status(500).render('500');
-        })
-    })
-    .catch((err) => {
-        console.log(err);
-        res.status(500).render('500');
+/**
+ * Update link
+ */
+router.post('/update-link', async (req, res) => {
+    const { title, url, linkID } = req.body;
+    
+    if (!title || !url || !linkID) {
+        throw new AppError('Title, URL, and Link ID are required', 400);
+    }
+    
+    const profile = await Profile.findOne({ userid: req.userID });
+    
+    if (!profile) {
+        throw new AppError('Profile not found', 404);
+    }
+    
+    const link = profile.links.id(linkID);
+    
+    if (!link) {
+        throw new AppError('Link not found', 404);
+    }
+    
+    link.title = title;
+    link.url = url;
+    await profile.save();
+    
+    logger.info('Link updated', {
+        correlationId: req.correlationId,
+        userId: req.userID,
+        linkId: linkID,
     });
+    
+    res.redirect('/dashboard');
 });
 
-router.post('/update-link',(req,res)=>{
-    const {title,url,linkID} = req.body;
-    Profile.findOne({userid:req.userID})
-    .then((profile)=>{
-        const link = profile.links.id(linkID);
-        link.title = title;
-        link.url = url;
-        profile.save()
-        .then(()=>{
-            res.redirect('/dashboard');
-        })
-        .catch((err)=>{
-            console.log(err);
-            res.status(500).render('500');
-        })
-    })
-    .catch((err)=>{
-        console.log(err);
-        res.status(500).render('500');
-    })
-});
-
-router.post('/delete-link',(req,res)=>{
+/**
+ * Delete link
+ */
+router.post('/delete-link', async (req, res) => {
     // CSRF verification
     const token = req.body._csrf;
     if (!token || token !== req.session.csrfToken) {
-        return res.status(403).render('403', {
-            message: 'Invalid security token. Please try again.',
-            csrfToken: req.session.csrfToken
-        });
+        throw new AppError('Invalid security token. Please try again.', 403);
     }
-
-    Profile.findOne({userid:req.userID})
-    .then((profile)=>{
-        const link = profile.links.id(req.body.id);
-        link.deleteOne();
-        profile.save()
-        .then(()=>{
-            res.redirect('/dashboard');
-        })
-        .catch((err)=>{
-            console.log(err);
-            res.status(500).render('500');
-        })
-    })
-    .catch((err)=>{
-        console.log(err);
-        res.status(500).render('500');
-    })
+    
+    const { id } = req.body;
+    
+    if (!id) {
+        throw new AppError('Link ID is required', 400);
+    }
+    
+    const profile = await Profile.findOne({ userid: req.userID });
+    
+    if (!profile) {
+        throw new AppError('Profile not found', 404);
+    }
+    
+    const link = profile.links.id(id);
+    
+    if (!link) {
+        throw new AppError('Link not found', 404);
+    }
+    
+    link.deleteOne();
+    await profile.save();
+    
+    logger.info('Link deleted', {
+        correlationId: req.correlationId,
+        userId: req.userID,
+        linkId: id,
+    });
+    
+    res.redirect('/dashboard');
 });
 
-router.get('/handles',(req,res)=>{
-    User.findOne({_id:req.userID})
-    .then((user)=>{
-        Profile.findOne({userid:req.userID})
-        .then((profile)=>{
-            res.render('dashboard/handles',{user:user,data:profile});
-        })
-        .catch((err)=>{
-            console.log(err);
-            res.status(500).render('500');
-        })
-    })
-    .catch((err)=>{
-        console.log(err);
-        res.status(500).render('500');
-    })
+/**
+ * Social handles page
+ */
+router.get('/handles', async (req, res) => {
+    const user = await User.findById(req.userID);
+    const profile = await Profile.findOne({ userid: req.userID });
+    
+    if (!user || !profile) {
+        throw new AppError('User or profile not found', 404);
+    }
+    
+    res.render('dashboard/handles', { user, data: profile });
 });
 
-router.post('/handles',(req,res)=>{
+/**
+ * Update social handles
+ */
+router.post('/handles', async (req, res) => {
     // CSRF verification for AJAX request
     const token = req.body._csrf || req.headers['x-csrf-token'];
     if (!token || token !== req.session.csrfToken) {
         return res.status(403).json({
-            status: "error",
-            message: "Invalid CSRF token"
+            status: 'error',
+            message: 'Invalid CSRF token',
         });
     }
-
-    // console.log(req.body);
-    const data = {...req.body};
-    // Remove CSRF token from data before saving
-    delete data._csrf;
     
-    Profile.findOne({userid:req.userID})
-    .then((profile)=>{
-        newData = {...profile.handles,...data};
-        Profile.updateOne({userid:req.userID},{handles:newData})
-        .then(()=>{
-            res.json({status:"success",message:"Handles updated successfully"});
-        })
-        .catch((err)=>{
-            console.log(err);
-            res.json({status:"error",message:"An error occurred while updating handles."});
-        })
-    })
-    .catch((err)=>{
-        console.log(err);
-        res.json({status:"error",message:"An error occurred while updating handles."});
-    })
+    try {
+        const data = { ...req.body };
+        // Remove CSRF token from data before saving
+        delete data._csrf;
+        
+        const profile = await Profile.findOne({ userid: req.userID });
+        
+        if (!profile) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Profile not found',
+            });
+        }
+        
+        const newData = { ...profile.handles, ...data };
+        await Profile.updateOne({ userid: req.userID }, { handles: newData });
+        
+        logger.info('Social handles updated', {
+            correlationId: req.correlationId,
+            userId: req.userID,
+        });
+        
+        res.json({
+            status: 'success',
+            message: 'Handles updated successfully',
+        });
+    } catch (err) {
+        logger.error('Error updating handles', {
+            correlationId: req.correlationId,
+            userId: req.userID,
+            error: err.message,
+        });
+        
+        res.status(500).json({
+            status: 'error',
+            message: 'An error occurred while updating handles.',
+        });
+    }
 });
 
 module.exports = router;

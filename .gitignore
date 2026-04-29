@@ -1,3 +1,5 @@
 node_modules
 .env
 logo.html
+logs/
+*.log

@@ -1,5 +1,5 @@
 const express = require("express");
-const morgan = require("morgan");
+require('express-async-errors'); // Handle async errors automatically
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -10,6 +10,16 @@ const path = require('path');
 const compression = require('compression');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+
+// Import utilities
+const logger = require('./utils/logger');
+const { addCorrelationId, logRequest } = require('./middlewares/requestLogger');
+const {
+    errorHandler,
+    notFoundHandler,
+    handleUnhandledRejection,
+    handleUncaughtException
+} = require('./middlewares/errorHandler');
 
 const { isAuth, isVerified } = require('./middlewares/auth');
 const { generalLimiter } = require('./middlewares/security');
@@ -23,6 +33,16 @@ const dashboardRoutes = require("./routes/dashboard");
 const analyticsRoutes = require("./routes/analytics");
 
 const app = express();
+
+// Handle uncaught exceptions and unhandled rejections
+handleUncaughtException();
+handleUnhandledRejection();
+
+// Add correlation ID to all requests (must be early in middleware chain)
+app.use(addCorrelationId);
+
+// Request logging
+app.use(logRequest);
 
 // Security Middleware
 app.use(helmet({
@@ -52,7 +72,11 @@ app.use(mongoSanitize({
 // Apply general rate limiting to all routes
 app.use(generalLimiter);
 
-app.use(morgan("dev"));
+// Morgan logging with Winston stream (only in development)
+if (process.env.NODE_ENV !== 'production') {
+    const morgan = require("morgan");
+    app.use(morgan("dev", { stream: logger.stream }));
+}
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -83,12 +107,19 @@ app.set('views', path.join(__dirname, 'views'));
 // Connecting to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then((result) => {
-    console.log('Connected to MongoDB.....');
-    app.listen(process.env.PORT || 80, () => {
-      console.log(`Listening at.... http://localhost:${process.env.PORT || 80}`);
+    logger.info('Connected to MongoDB successfully');
+    const port = process.env.PORT || 80;
+    app.listen(port, () => {
+      logger.info(`Server started on port ${port}`, {
+        environment: process.env.NODE_ENV || 'development',
+        port: port
+      });
     });
   })
-  .catch((err) => console.log(err));
+  .catch((err) => {
+    logger.error('Failed to connect to MongoDB', { error: err.message });
+    process.exit(1);
+  });
 
 // Routes
 app.use(authRoutes);
@@ -99,16 +130,11 @@ app.use('/track',analyticsRoutes); // Public route for link tracking
 app.use('/profile',profileRoutes);
 
 app.get("/", isAuth, (req, res) => {
-  // console.log(req.isLoggedIn);
   res.render("home/index", { isLoggedIn: req.isLoggedIn });
 });
 
-app.use("*",(req,res)=>{
-  res.status(404).render("404");
-});
+// 404 handler (must be after all routes)
+app.use(notFoundHandler);
 
-app.use((err,req,res,next)=>{
-  console.error(`Error occurred in route: ${req.path}`);
-  console.error(err.stack);
-  res.status(500).render("500");
-});
+// Centralized error handler (must be last)
+app.use(errorHandler);
