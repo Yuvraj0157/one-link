@@ -10,6 +10,7 @@ const path = require('path');
 const compression = require('compression');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+const passport = require('./config/passport');
 
 // Import utilities
 const logger = require('./utils/logger');
@@ -31,6 +32,7 @@ const appearanceRoutes = require("./routes/appearance");
 const profileRoutes = require("./routes/profile");
 const dashboardRoutes = require("./routes/dashboard");
 const analyticsRoutes = require("./routes/analytics");
+const legalRoutes = require("./routes/legal");
 
 const app = express();
 
@@ -54,7 +56,7 @@ app.use(helmet({
             defaultSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://getbootstrap.com", "https://cdn.jsdelivr.net"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://kit.fontawesome.com", "https://unpkg.com", "https://ajax.googleapis.com", "https://cdn.jsdelivr.net"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://ka-f.fontawesome.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://ka-f.fontawesome.com", "https://cdn.jsdelivr.net"],
             imgSrc: ["'self'", "data:", "https://onelinkprofile.s3.ap-south-1.amazonaws.com", "https://onelinkprofile.s3.amazonaws.com", "https://www.google.com", "https://*.gstatic.com", "https://img.shields.io", "https://flagsapi.com"],
             connectSrc: ["'self'", "https://ka-f.fontawesome.com", "https://cdn.jsdelivr.net"],
             frameSrc: ["'self'"],
@@ -96,6 +98,8 @@ app.use(session({
     }
 }));
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 app.use(compression());
 
 
@@ -156,6 +160,7 @@ app.use('/appearance',isAuth,isVerified,appearanceRoutes);
 app.use('/analytics',isAuth,isVerified,analyticsRoutes);
 app.use('/track',analyticsRoutes); // Public route for link tracking
 app.use('/profile',profileRoutes);
+app.use(legalRoutes); // Public legal pages
 
 app.get("/", isAuth, (req, res) => {
   res.render("home/index", { isLoggedIn: req.isLoggedIn });

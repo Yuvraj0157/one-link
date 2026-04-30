@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const { check, body } = require('express-validator');
 const { validationResult } = require('express-validator');
+const passport = require('passport');
 
 const emailController = require('../utils/emailController');
 const User = require('../models/user');
@@ -429,3 +430,67 @@ router.get('/verify-email/:token', emailLimiter, async (req, res) => {
 });
 
 module.exports = router;
+/**
+ * Google OAuth Routes
+ */
+
+// Initiate Google OAuth
+router.get('/auth/google',
+    passport.authenticate('google', {
+        scope: ['profile', 'email'],
+        session: false
+    })
+);
+
+// Google OAuth callback
+router.get('/auth/google/callback',
+    (req, res, next) => {
+        passport.authenticate('google', { session: false }, async (err, user, info) => {
+            if (err) {
+                logger.error('Error in Google OAuth callback', {
+                    correlationId: req.correlationId,
+                    error: err.message
+                });
+                req.flash('error', 'Authentication failed. Please try again.');
+                return res.redirect('/login');
+            }
+            
+            if (!user) {
+                req.flash('error', 'Authentication failed. Please try again.');
+                return res.redirect('/login');
+            }
+            
+            try {
+                // Generate JWT token for the authenticated user
+                const token = await signToken(
+                    { userID: user._id },
+                    process.env.JWT_LOGIN_SECRET,
+                    { expiresIn: process.env.JWT_LOGIN_EXPIRY || '2d' }
+                );
+                
+                // Set cookie
+                res.cookie('jwt', token, {
+                    httpOnly: true,
+                    maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict'
+                });
+                
+                logger.info('User logged in via Google OAuth', {
+                    correlationId: req.correlationId,
+                    userId: user._id,
+                    email: user.email,
+                });
+                
+                res.redirect('/dashboard');
+            } catch (error) {
+                logger.error('Error generating JWT token', {
+                    correlationId: req.correlationId,
+                    error: error.message
+                });
+                req.flash('error', 'Authentication failed. Please try again.');
+                res.redirect('/login');
+            }
+        })(req, res, next);
+    }
+);

@@ -10,7 +10,12 @@ const { AppError } = require('../middlewares/errorHandler');
 const { deleteCachePattern } = require('../utils/cache');
 
 /**
- * Dashboard home page
+ * @route GET /dashboard
+ * @description Display user dashboard with links, stats, and pagination
+ * @access Private (requires authentication and email verification)
+ * @param {number} req.query.page - Page number for pagination (default: 1)
+ * @param {number} req.query.limit - Items per page (default: 10)
+ * @returns {Object} Renders dashboard view with user data, profile, stats, and paginated links
  */
 router.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -75,7 +80,10 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * Add link page
+ * @route GET /dashboard/add-link
+ * @description Display form to add a new link
+ * @access Private (requires authentication and email verification)
+ * @returns {Object} Renders add link form
  */
 router.get('/add-link', async (req, res) => {
     const user = await User.findById(req.userID).select('username email').lean();
@@ -88,7 +96,14 @@ router.get('/add-link', async (req, res) => {
 });
 
 /**
- * Add new link
+ * @route POST /dashboard/add-link
+ * @description Create a new link and add it to user's profile
+ * @access Private (requires authentication and email verification)
+ * @param {string} req.body.title - Link title (required)
+ * @param {string} req.body.url - Link URL (required)
+ * @param {string} req.body.icon - FontAwesome icon class (optional, default: 'fas fa-link')
+ * @returns {Redirect} Redirects to dashboard after successful creation
+ * @throws {AppError} 400 if title or URL is missing
  */
 router.post('/add-link', async (req, res) => {
     const { title, url, icon } = req.body;
