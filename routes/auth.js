@@ -189,7 +189,7 @@ router.post('/login',
             httpOnly: true,
             maxAge: cookieMaxAge,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
+            sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict'
         });
         
         logger.info('User logged in', {
@@ -483,7 +483,7 @@ router.get('/auth/google/callback',
                     httpOnly: true,
                     maxAge: 2 * 24 * 60 * 60 * 1000, // 2 days
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'strict'
+                    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict'
                 });
                 
                 logger.info('User logged in via Google OAuth', {

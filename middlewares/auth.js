@@ -16,7 +16,12 @@ const isAuth = async (req, res, next) => {
         
         if (!token) {
             req.isLoggedIn = false;
-            return res.status(200).render('home/index', { isLoggedIn: false });
+            // If accessing protected route, redirect to login
+            if (req.path.startsWith('/dashboard') || req.path.startsWith('/appearance') || req.path.startsWith('/analytics')) {
+                return res.redirect('/login');
+            }
+            // For home page, just set isLoggedIn flag
+            return next();
         }
 
         // Verify token
@@ -42,7 +47,13 @@ const isAuth = async (req, res, next) => {
         res.clearCookie('jwt');
         req.isLoggedIn = false;
         
-        return res.status(403).render('home/index', { isLoggedIn: false });
+        // If accessing protected route, redirect to login
+        if (req.path.startsWith('/dashboard') || req.path.startsWith('/appearance') || req.path.startsWith('/analytics')) {
+            return res.redirect('/login');
+        }
+        
+        // For home page, continue with isLoggedIn = false
+        return next();
     }
 };
 
