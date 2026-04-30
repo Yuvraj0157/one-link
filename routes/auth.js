@@ -163,8 +163,8 @@ router.post('/login',
         }
         
         // Determine token expiry based on "Remember Me"
-        const tokenExpiry = rememberMe ? '30d' : (process.env.JWT_LOGIN_EXPIRY || '5d');
-        const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 5 * 24 * 60 * 60 * 1000;
+        const tokenExpiry = rememberMe ? '7d' : (process.env.JWT_LOGIN_EXPIRY || '2d');
+        const cookieMaxAge = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 2 * 24 * 60 * 60 * 1000;
         
         // Generate JWT token
         const token = await signToken(
