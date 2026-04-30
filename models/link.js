@@ -11,6 +11,10 @@ const linkSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    icon:{
+        type:String,
+        default:'fas fa-link'
+    },
     active:{
         type:Boolean,
         default:true

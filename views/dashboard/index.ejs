@@ -328,7 +328,8 @@
                                 </th>
                                 <th style="width: 40px;"></th>
                                 <th style="width: 60px;">#</th>
-                                <th style="width: 40px;"></th>
+                                <th style="width: 40px;">Icon</th>
+                                <th style="width: 40px;">Site</th>
                                 <th>Title</th>
                                 <th>URL</th>
                                 <th style="width: 120px;">Actions</th>
@@ -348,6 +349,9 @@
                                         <i class="fas fa-grip-vertical text-muted"></i>
                                     </td>
                                     <td><%= startIndex + index + 1 %></td>
+                                    <td>
+                                        <i class="<%= link.icon || 'fas fa-link' %>" style="font-size: 1.2rem; color: #667eea;"></i>
+                                    </td>
                                     <td>
                                         <div class="link-favicon">
                                             <%

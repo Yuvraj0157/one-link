@@ -32,6 +32,42 @@
                     <input type="url" class="form-control" name="url" id="url"
                            value="<%= link.url%>" placeholder="https://example.com" required>
                 </div>
+                <div class="mb-3">
+                    <label for="icon" class="form-label">
+                        <i class="fas fa-icons"></i> Icon
+                    </label>
+                    <select class="form-select" id="icon" name="icon">
+                        <option value="fas fa-link" <%= link.icon === 'fas fa-link' ? 'selected' : '' %>>🔗 Default Link</option>
+                        <option value="fas fa-globe" <%= link.icon === 'fas fa-globe' ? 'selected' : '' %>>🌐 Website</option>
+                        <option value="fab fa-instagram" <%= link.icon === 'fab fa-instagram' ? 'selected' : '' %>>📷 Instagram</option>
+                        <option value="fab fa-twitter" <%= link.icon === 'fab fa-twitter' ? 'selected' : '' %>>🐦 Twitter</option>
+                        <option value="fab fa-facebook" <%= link.icon === 'fab fa-facebook' ? 'selected' : '' %>>👥 Facebook</option>
+                        <option value="fab fa-youtube" <%= link.icon === 'fab fa-youtube' ? 'selected' : '' %>>📺 YouTube</option>
+                        <option value="fab fa-linkedin" <%= link.icon === 'fab fa-linkedin' ? 'selected' : '' %>>💼 LinkedIn</option>
+                        <option value="fab fa-github" <%= link.icon === 'fab fa-github' ? 'selected' : '' %>>💻 GitHub</option>
+                        <option value="fab fa-tiktok" <%= link.icon === 'fab fa-tiktok' ? 'selected' : '' %>>🎵 TikTok</option>
+                        <option value="fab fa-spotify" <%= link.icon === 'fab fa-spotify' ? 'selected' : '' %>>🎧 Spotify</option>
+                        <option value="fab fa-discord" <%= link.icon === 'fab fa-discord' ? 'selected' : '' %>>💬 Discord</option>
+                        <option value="fab fa-telegram" <%= link.icon === 'fab fa-telegram' ? 'selected' : '' %>>✈️ Telegram</option>
+                        <option value="fab fa-whatsapp" <%= link.icon === 'fab fa-whatsapp' ? 'selected' : '' %>>📱 WhatsApp</option>
+                        <option value="fab fa-snapchat" <%= link.icon === 'fab fa-snapchat' ? 'selected' : '' %>>👻 Snapchat</option>
+                        <option value="fab fa-pinterest" <%= link.icon === 'fab fa-pinterest' ? 'selected' : '' %>>📌 Pinterest</option>
+                        <option value="fab fa-reddit" <%= link.icon === 'fab fa-reddit' ? 'selected' : '' %>>🤖 Reddit</option>
+                        <option value="fab fa-twitch" <%= link.icon === 'fab fa-twitch' ? 'selected' : '' %>>🎮 Twitch</option>
+                        <option value="fas fa-envelope" <%= link.icon === 'fas fa-envelope' ? 'selected' : '' %>>✉️ Email</option>
+                        <option value="fas fa-phone" <%= link.icon === 'fas fa-phone' ? 'selected' : '' %>>📞 Phone</option>
+                        <option value="fas fa-shopping-cart" <%= link.icon === 'fas fa-shopping-cart' ? 'selected' : '' %>>🛒 Shop</option>
+                        <option value="fas fa-blog" <%= link.icon === 'fas fa-blog' ? 'selected' : '' %>>📝 Blog</option>
+                        <option value="fas fa-book" <%= link.icon === 'fas fa-book' ? 'selected' : '' %>>📚 Portfolio</option>
+                        <option value="fas fa-music" <%= link.icon === 'fas fa-music' ? 'selected' : '' %>>🎵 Music</option>
+                        <option value="fas fa-video" <%= link.icon === 'fas fa-video' ? 'selected' : '' %>>🎬 Video</option>
+                        <option value="fas fa-camera" <%= link.icon === 'fas fa-camera' ? 'selected' : '' %>>📸 Photography</option>
+                        <option value="fas fa-heart" <%= link.icon === 'fas fa-heart' ? 'selected' : '' %>>❤️ Support</option>
+                        <option value="fas fa-donate" <%= link.icon === 'fas fa-donate' ? 'selected' : '' %>>💰 Donate</option>
+                        <option value="fas fa-file-pdf" <%= link.icon === 'fas fa-file-pdf' ? 'selected' : '' %>>📄 PDF/Document</option>
+                    </select>
+                    <small class="form-text text-muted">Choose an icon that represents your link</small>
+                </div>
                 <input type="hidden" name="linkID" value="<%= link._id%>">
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary">

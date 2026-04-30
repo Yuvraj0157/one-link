@@ -91,13 +91,13 @@ router.get('/add-link', async (req, res) => {
  * Add new link
  */
 router.post('/add-link', async (req, res) => {
-    const { title, url } = req.body;
+    const { title, url, icon } = req.body;
     
     if (!title || !url) {
         throw new AppError('Title and URL are required', 400);
     }
     
-    const newLink = new Link({ title, url });
+    const newLink = new Link({ title, url, icon: icon || 'fas fa-link' });
     await Profile.updateOne(
         { userid: req.userID },
         { $push: { links: newLink } }
@@ -149,7 +149,7 @@ router.get('/update-link', async (req, res) => {
  * Update link
  */
 router.post('/update-link', async (req, res) => {
-    const { title, url, linkID } = req.body;
+    const { title, url, icon, linkID } = req.body;
     
     if (!title || !url || !linkID) {
         throw new AppError('Title, URL, and Link ID are required', 400);
@@ -169,6 +169,7 @@ router.post('/update-link', async (req, res) => {
     
     link.title = title;
     link.url = url;
+    link.icon = icon || 'fas fa-link';
     await profile.save();
     
     // Invalidate user's profile cache

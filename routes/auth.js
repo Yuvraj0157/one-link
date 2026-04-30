@@ -134,7 +134,7 @@ router.post('/login',
         .trim()
     ],
     async (req, res) => {
-        const { email, password } = req.body;
+        const { email, password, rememberMe } = req.body;
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -162,17 +162,21 @@ router.post('/login',
             return res.redirect('/login');
         }
         
+        // Determine token expiry based on "Remember Me"
+        const tokenExpiry = rememberMe ? '30d' : (process.env.JWT_LOGIN_EXPIRY || '5d');
+        const cookieMaxAge = rememberMe ? 30 * 24 * 60 * 60 * 1000 : 5 * 24 * 60 * 60 * 1000;
+        
         // Generate JWT token
         const token = await signToken(
             { userID: user._id },
             process.env.JWT_LOGIN_SECRET,
-            { expiresIn: process.env.JWT_LOGIN_EXPIRY || '5d' }
+            { expiresIn: tokenExpiry }
         );
         
         // Set cookie
         res.cookie('jwt', token, {
             httpOnly: true,
-            maxAge: 5 * 24 * 60 * 60 * 1000, // 5 days
+            maxAge: cookieMaxAge,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict'
         });
