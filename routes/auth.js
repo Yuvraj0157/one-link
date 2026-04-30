@@ -146,13 +146,23 @@ router.post('/login',
         }
         
         // Find user (only select needed fields for login)
-        const user = await User.findOne({ email }).select('_id email password status');
+        const user = await User.findOne({ email }).select('_id email password status googleId');
         if (!user) {
             req.flash('error', 'Invalid email or password');
             return res.redirect('/login');
         }
         
-        // Compare password
+        // Check if user only has Google OAuth (no password set)
+        if (!user.password) {
+            if (user.googleId) {
+                req.flash('error', 'This account uses Google Sign-In. Please use the "Sign in with Google" button.');
+            } else {
+                req.flash('error', 'Invalid email or password');
+            }
+            return res.redirect('/login');
+        }
+        
+        // Compare password (user has a password, may also have Google OAuth linked)
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             logger.warn('Failed login attempt', {
