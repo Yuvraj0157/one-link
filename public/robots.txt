@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /appearance/
+Disallow: /analytics/
+Disallow: /auth/
+
+Sitemap: https://onelink-ej3n.onrender.com/sitemap.xml
